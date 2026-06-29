@@ -113,9 +113,13 @@
   .pvpal>div{flex:1}
   .pvshadow{display:flex;align-items:center;justify-content:center;width:100%;height:100%}
   .pvcard{width:64px;height:64px;border-radius:14px;background:#2a2440}
-  .card .cb{display:flex;align-items:center;justify-content:space-between;padding:11px 14px}
+  .card .cb{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:none;transition:.2s}
+  .card .cb:hover{background:rgba(139,70,214,.1)}
   .card .cn{font-size:14px;font-weight:600}
   .card .cc{font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .copen{font-family:'IBM Plex Mono';font-size:10.5px;color:var(--muted);border:1px solid var(--line);padding:4px 9px;border-radius:7px;transition:.2s;white-space:nowrap}
+  .card .cb:hover .copen{border-color:transparent;background:linear-gradient(120deg,var(--green),var(--cyan));color:#fff}
+  .pv{position:relative;border-bottom:1px solid var(--line)}
   .heart{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:8px;background:rgba(9,7,15,.55);backdrop-filter:blur(6px);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:none;font-size:14px;z-index:3}
   .pvover{position:absolute;inset:0;z-index:2}
   .heart.on{color:#ff5a7a;border-color:#ff5a7a}
@@ -145,6 +149,18 @@
   .tweak input[type=range]{width:100%;margin-top:7px;accent-color:var(--green)}
   .tweak .swatches{display:flex;gap:10px;margin-top:9px;flex-wrap:wrap}
   .tweak input[type=color]{flex:1;min-width:46px;height:36px;border:1px solid var(--line);border-radius:9px;background:none;cursor:none;padding:3px}
+  .cswatches{display:flex;gap:9px;margin-top:10px;flex-wrap:wrap}
+  .csw{width:34px;height:34px;border-radius:9px;border:2px solid var(--line);cursor:none;padding:0}
+  .csw.on{border-color:#fff;box-shadow:0 0 0 2px var(--green)}
+  .cpick{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .cp-sv{position:relative;width:100%;height:132px;border-radius:10px;cursor:none;touch-action:none}
+  .cp-pt{position:absolute;width:14px;height:14px;border-radius:50%;border:2px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,.45);pointer-events:none}
+  .cp-hue{position:relative;width:100%;height:14px;border-radius:8px;margin-top:13px;cursor:none;touch-action:none;background:linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+  .cp-pt2{position:absolute;top:50%;width:8px;height:20px;border-radius:4px;border:2px solid #fff;transform:translate(-50%,-50%);box-shadow:0 0 0 1px rgba(0,0,0,.45);pointer-events:none}
+  .cp-foot{display:flex;align-items:center;gap:10px;margin-top:13px}
+  .cp-prev{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);flex:none}
+  .cp-hex{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:13px;padding:10px 12px;outline:none;text-transform:uppercase;letter-spacing:.05em}
+  .cp-hex:focus{border-color:var(--green)}
   .ftabs{display:flex;gap:6px;margin:18px 0 0;flex-wrap:wrap}
   .ftab{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:7px 13px;border-radius:8px;cursor:none}
   .ftab.on{color:var(--text);border-color:var(--green)}
@@ -700,10 +716,11 @@
     curList.slice(shown,shown+PAGE).forEach(it=>{
       const card=document.createElement("div");card.className="card";card._it=it;
       const fav=favs.has(idOf(it));
-      card.innerHTML='<div class="heart'+(fav?' on':'')+'">'+(fav?'♥':'♡')+'</div>'+(it.type==="comp"?'<div class="pvover"></div>':'')+'<div class="pv">'+(it.type==="comp"?'<div class="skel"></div>':'')+'</div><div class="cb"><span class="cn">'+it.name+'</span><span class="cc">'+it.cat+'</span></div>';
-      if(it.type!=="comp"){fillPreview(card.querySelector(".pv"),it,"dark");card._loaded=true;}
+      card.innerHTML='<div class="heart'+(fav?' on':'')+'">'+(fav?'♥':'♡')+'</div><div class="pv">'+(it.type==="comp"?'<div class="skel"></div>':'')+'</div><div class="cb"><span class="cn">'+it.name+'</span><span class="copen">&lt;/&gt; code</span></div>';
+      const pvEl=card.querySelector(".pv");
+      if(it.type!=="comp"){fillPreview(pvEl,it,"dark");card._loaded=true;pvEl.addEventListener("click",()=>openDrawer(it));}
       card.querySelector(".heart").addEventListener("click",e=>{e.stopPropagation();toggleFav(it);});
-      card.addEventListener("click",()=>openDrawer(it));
+      card.querySelector(".cb").addEventListener("click",()=>openDrawer(it));
       grid.appendChild(card);io.observe(card);
     });
     shown=Math.min(shown+PAGE,curList.length);
@@ -778,19 +795,40 @@
     scrim.classList.add("open");drawer.classList.add("open");
   }
   document.querySelectorAll(".pvtoggle button").forEach(b=>b.addEventListener("click",function(){previewBg=this.dataset.bg;document.querySelectorAll(".pvtoggle button").forEach(x=>x.classList.remove("on"));this.classList.add("on");fillPreview(dpv,current,previewBg);}));
+  /* ===================== CUSTOM COLOR PICKER ===================== */
+  function hsv2rgb(h,s,v){h/=360;const i=Math.floor(h*6),f=h*6-i,p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);let r,g,b;switch(i%6){case 0:r=v;g=t;b=p;break;case 1:r=q;g=v;b=p;break;case 2:r=p;g=v;b=t;break;case 3:r=p;g=q;b=v;break;case 4:r=t;g=p;b=v;break;default:r=v;g=p;b=q;}return [r*255,g*255,b*255];}
+  function rgb2hex(r,g,b){const to=x=>Math.round(x).toString(16).padStart(2,"0");return "#"+to(r)+to(g)+to(b);}
+  function hex2hsv(hex){hex=(hex||"").replace("#","");if(hex.length===3)hex=hex.split("").map(c=>c+c).join("");let r=parseInt(hex.slice(0,2),16)/255,g=parseInt(hex.slice(2,4),16)/255,b=parseInt(hex.slice(4,6),16)/255;if(isNaN(r)){r=g=b=0;}const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;let h=0;const s=mx?d/mx:0,v=mx;if(d){if(mx===r)h=((g-b)/d)%6;else if(mx===g)h=(b-r)/d+2;else h=(r-g)/d+4;h*=60;if(h<0)h+=360;}return [h,s,v];}
+  function colorEditor(box,colors,onSet){
+    let active=0,H=0,S=1,V=1;
+    box.innerHTML='<div class="tweak"><div class="tr"><label>Colors <span class="mono" style="opacity:.55">click a swatch, drag to pick</span></label>'+
+      '<div class="cswatches">'+colors.map((h,i)=>'<button class="csw'+(i===0?" on":"")+'" data-i="'+i+'" style="background:'+h+'"></button>').join("")+'</div></div>'+
+      '<div class="cpick"><div class="cp-sv" id="cpsv"><div class="cp-pt" id="cpsvpt"></div></div>'+
+      '<div class="cp-hue" id="cphue"><div class="cp-pt2" id="cphuept"></div></div>'+
+      '<div class="cp-foot"><span class="cp-prev" id="cpprev"></span><input class="cp-hex mono" id="cphex" maxlength="7" spellcheck="false"></div></div></div>';
+    const sv=box.querySelector("#cpsv"),svpt=box.querySelector("#cpsvpt"),hue=box.querySelector("#cphue"),huept=box.querySelector("#cphuept"),prev=box.querySelector("#cpprev"),hexEl=box.querySelector("#cphex"),sws=[...box.querySelectorAll(".csw")];
+    function paint(emit){const rgb=hsv2rgb(H,S,V),hx=rgb2hex(rgb[0],rgb[1],rgb[2]);sv.style.background="linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,hsl("+H+",100%,50%))";svpt.style.left=(S*100)+"%";svpt.style.top=((1-V)*100)+"%";svpt.style.background=hx;huept.style.left=(H/360*100)+"%";prev.style.background=hx;if(document.activeElement!==hexEl)hexEl.value=hx.toUpperCase();if(emit){colors[active]=hx;sws[active].style.background=hx;onSet(active,hx);}}
+    function setFromHex(h){const v=hex2hsv(h);H=v[0];S=v[1];V=v[2];paint(false);}
+    function sel(i){active=i;sws.forEach(s=>s.classList.toggle("on",+s.dataset.i===i));setFromHex(colors[i]);}
+    sws.forEach(s=>s.addEventListener("click",()=>sel(+s.dataset.i)));
+    function svMove(e){const r=sv.getBoundingClientRect();S=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));V=Math.max(0,Math.min(1,1-(e.clientY-r.top)/r.height));paint(true);}
+    function hueMove(e){const r=hue.getBoundingClientRect();H=Math.max(0,Math.min(360,(e.clientX-r.left)/r.width*360));paint(true);}
+    function drag(el,fn){el.addEventListener("pointerdown",e=>{e.preventDefault();fn(e);const mv=ev=>fn(ev),up=()=>{removeEventListener("pointermove",mv);removeEventListener("pointerup",up);};addEventListener("pointermove",mv);addEventListener("pointerup",up);});}
+    drag(sv,svMove);drag(hue,hueMove);
+    hexEl.addEventListener("input",function(){let v=this.value.trim();if(v[0]!=="#")v="#"+v;if(/^#[0-9a-fA-F]{6}$/.test(v)){setFromHex(v);colors[active]=v;sws[active].style.background=v;onSet(active,v);}});
+    sel(0);
+  }
+
   function buildTweak(it){
     const box=document.getElementById("dtweak");box.innerHTML="";
     if(it.type==="gradient"){
       const cols=it.grad.match(/#[0-9a-fA-F]{6}/g)||["#7c3aed","#ec4899"];
-      const a=(it.grad.match(/(\d+)deg/)||[])[1]||"160";
-      let c1=cols[0],c2=cols[1]||cols[0],ang=a;
+      let c1=cols[0],c2=cols[1]||cols[0];
+      const a=(it.grad.match(/(\d+)deg/)||[])[1]||"160";let ang=a;
       const rebuild=()=>{it.grad="linear-gradient("+ang+"deg,"+c1+","+c2+")";fillPreview(dpv,it,previewBg);showCode();};
-      box.innerHTML='<div class="tweak">'+
-        '<div class="tr"><label>Angle <span class="mono" id="t1">'+a+'°</span></label><input type="range" min="0" max="360" value="'+a+'" id="ti1"></div>'+
-        '<div class="tr"><label>Colors</label><div class="swatches"><input type="color" value="'+c1+'" id="tc1"><input type="color" value="'+c2+'" id="tc2"></div></div></div>';
+      box.innerHTML='<div class="tweak"><div class="tr"><label>Angle <span class="mono" id="t1">'+a+'°</span></label><input type="range" min="0" max="360" value="'+a+'" id="ti1"></div></div><div id="gced"></div>';
       box.querySelector("#ti1").addEventListener("input",function(){ang=this.value;document.getElementById("t1").textContent=ang+"°";rebuild();});
-      box.querySelector("#tc1").addEventListener("input",function(){c1=this.value;rebuild();});
-      box.querySelector("#tc2").addEventListener("input",function(){c2=this.value;rebuild();});
+      colorEditor(document.getElementById("gced"),[c1,c2],(i,hex)=>{if(i===0)c1=hex;else c2=hex;rebuild();});
     } else if(it.type==="shadow"){
       box.innerHTML='<div class="tweak">'+
         '<div class="tr"><label>Blur <span class="mono" id="tb">'+it.blur+'px</span></label><input type="range" min="0" max="80" value="'+it.blur+'" id="tib"></div>'+
@@ -802,17 +840,13 @@
       box.querySelector("#tis").addEventListener("input",function(){it.spread=+this.value;document.getElementById("ts").textContent=it.spread+"px";up();});
     } else if(it.type==="comp"){
       if(it.fx){
-        let c1=it.tc[0],c2=it.tc[1];
-        const rebuild=()=>{const th=[it.name,c1,c2];it.css=it.fx.c(th);it.js=it.fx.j?it.fx.j(th):null;it.html=typeof it.fx.h==="function"?it.fx.h(th):it.fx.h;it.tc=[c1,c2];fillPreview(dpv,it,previewBg);showCode();};
-        box.innerHTML='<div class="tweak"><div class="tr"><label>Colors <span class="mono" style="opacity:.55">primary · secondary</span></label><div class="swatches"><input type="color" value="'+c1+'" id="cc1"><input type="color" value="'+c2+'" id="cc2"></div></div></div>';
-        box.querySelector("#cc1").addEventListener("input",function(){c1=this.value;rebuild();});
-        box.querySelector("#cc2").addEventListener("input",function(){c2=this.value;rebuild();});
+        const cols=[it.tc[0],it.tc[1]];
+        colorEditor(box,cols,(i,hex)=>{const th=[it.name,cols[0],cols[1]];it.css=it.fx.c(th);it.js=it.fx.j?it.fx.j(th):null;it.html=typeof it.fx.h==="function"?it.fx.h(th):it.fx.h;it.tc=[cols[0],cols[1]];fillPreview(dpv,it,previewBg);showCode();});
       } else {
         const hexes=[...new Set((it.css+" "+(it.js||"")+" "+(it.html||"")).match(/#[0-9a-fA-F]{6}/g)||[])].slice(0,6);
         if(!hexes.length)return;
-        const cur=hexes.slice();
-        box.innerHTML='<div class="tweak"><div class="tr"><label>Colors <span class="mono" style="opacity:.55">tap a swatch to edit</span></label><div class="swatches">'+cur.map((h,i)=>'<input type="color" value="'+h+'" data-i="'+i+'">').join("")+'</div></div></div>';
-        box.querySelectorAll(".swatches input").forEach(inp=>inp.addEventListener("input",function(){const i=+this.dataset.i,old=cur[i],nw=this.value,rep=s=>s?s.split(old).join(nw):s;it.css=rep(it.css);it.js=rep(it.js);it.html=rep(it.html);cur[i]=nw;fillPreview(dpv,it,previewBg);showCode();}));
+        const cur=hexes.slice(),orig=hexes.slice();
+        colorEditor(box,cur,(i,hex)=>{const old=orig[i],rep=s=>s?s.split(old).join(hex):s;it.css=rep(it.css);it.js=rep(it.js);it.html=rep(it.html);orig[i]=hex;fillPreview(dpv,it,previewBg);showCode();});
       }
     }
   }
