@@ -175,6 +175,24 @@
   .copybtn{width:100%;margin-top:14px;background:linear-gradient(120deg,var(--green),var(--cyan));color:#fff;font-family:'Outfit';font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:none}
   .favbtn{width:100%;margin-top:10px;background:none;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:none;font-family:'IBM Plex Mono';font-size:13px}
   .favbtn.on{border-color:#ff5a7a;color:#ff5a7a}
+  .savebtn{width:100%;margin-top:10px;background:none;color:var(--green);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:none;font-family:'IBM Plex Mono';font-size:13px;transition:.2s}
+  .savebtn:hover{border-color:var(--green);background:rgba(139,70,214,.08)}
+  .sronly{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  #play{position:fixed;inset:0;z-index:220;background:rgba(4,3,8,.86);backdrop-filter:blur(8px);display:none;flex-direction:column}
+  #play.open{display:flex}
+  .play-bar{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);background:var(--bg2)}
+  .play-title{font-weight:700;font-size:15px}
+  .play-devices{display:flex;gap:6px;margin-left:auto}
+  .play-devices button{font-size:14px;background:var(--card);border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:7px 12px;cursor:none;transition:.2s}
+  .play-devices button.on{border-color:var(--green);color:var(--green)}
+  .play-w{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);min-width:60px;text-align:right}
+  .play-bar #playx{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;width:34px;height:34px;cursor:none;font-size:16px}
+  .play-bar #playx:hover{color:var(--text);border-color:var(--green)}
+  .play-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:auto;padding:30px}
+  .play-frame{position:relative;height:82%;min-height:300px;width:1000px;background:#141021;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .play-frame iframe{width:100%;height:100%;border:0;display:block}
+  .play-grip{position:absolute;top:0;right:0;width:16px;height:100%;cursor:ew-resize;background:linear-gradient(90deg,transparent,var(--green));opacity:0;transition:opacity .2s}
+  .play-frame:hover .play-grip{opacity:.55}
 
   #pal{position:fixed;inset:0;z-index:200;background:rgba(4,3,8,.62);backdrop-filter:blur(6px);display:none;align-items:flex-start;justify-content:center;padding-top:14vh}
   #pal.open{display:flex}
@@ -248,6 +266,7 @@
     <div class="grid" id="grid"></div>
   </div>
 
+  <section class="sronly" id="seo"></section>
   <footer>
     <div class="wrap fcols">
       <div class="fbrand">
@@ -278,7 +297,7 @@
   <div class="scrim" id="scrim"></div>
   <aside class="drawer" id="drawer">
     <div class="dh"><div><div class="dcat" id="dcat"></div><h3 id="dname"></h3></div>
-      <div class="hd"><button id="dprev" title="Previous (←)">‹</button><button id="dnext" title="Next (→)">›</button><button id="dshare" title="Copy share link">↗</button><button id="dx" title="Close">×</button></div></div>
+      <div class="hd"><button id="dprev" title="Previous (←)">‹</button><button id="dnext" title="Next (→)">›</button><button id="dplay" title="Open in playground">⛶</button><button id="dshare" title="Copy share link">↗</button><button id="dx" title="Close">×</button></div></div>
     <div class="dbody">
       <div class="dpv-wrap">
         <div class="pvtoggle"><button data-bg="dark" class="on">Dark</button><button data-bg="light">Light</button></div>
@@ -289,8 +308,11 @@
       <div class="codebox"><pre id="dcode"></pre></div>
       <button class="copybtn" id="copybtn">Copy code</button>
       <button class="favbtn" id="favbtn">♡ Save to My Kit</button>
+      <button class="savebtn" id="savebtn">✦ Save my edited version</button>
     </div>
   </aside>
+
+  <div id="play"><div class="play-bar"><span class="play-title" id="playname">Playground</span><div class="play-devices"><button data-w="375" title="Mobile">📱</button><button data-w="768" title="Tablet">▭</button><button data-w="1200" class="on" title="Desktop">🖥</button></div><span class="play-w" id="playw"></span><button id="playx" title="Close (Esc)">×</button></div><div class="play-stage"><div class="play-frame" id="playframe"><iframe id="playif" sandbox="allow-scripts"></iframe><div class="play-grip" id="playgrip" title="Drag to resize"></div></div></div></div>
 
   <button id="totop" title="Back to top">↑</button>
   <div id="help"><div class="helpbox">
@@ -775,6 +797,8 @@
 
   // Remove any accidental duplicate (cat + name), keeping the first defined
   (function(){const seen={};for(let i=0;i<ITEMS.length;i++){const k=ITEMS[i].cat+":"+ITEMS[i].name;if(seen[k]){ITEMS.splice(i,1);i--;}else seen[k]=1;}})();
+  // Rehydrate user-saved custom versions
+  var customs=JSON.parse(localStorage.getItem("ck_customs")||"[]");customs.forEach(c=>{ITEMS.push(c);});
 
   const CATMETA=[["all","All"],["gradients","Gradients"],["palettes","Palettes"],["buttons","Buttons"],["toggles","Toggles"],["inputs","Inputs"],["badges","Badges"],["progress","Progress"],["alerts","Alerts"],["tooltips","Tooltips"],["avatars","Avatars"],["dividers","Dividers"],["shadows","Shadows"],["loaders","Loaders"],["skeletons","Skeletons"],["textfx","Text FX"],["cards","Cards"],["backgrounds","Backgrounds"],["cursors","Cursors"]];
 
@@ -875,23 +899,52 @@
     return out;
   }
   function primaryCode(it){return formatsFor(it)[0][1];}
+  function jsxOf(html){return (html||"").replace(/class=/g,"className=").replace(/<br>/g,"<br/>").replace(/ for=/g," htmlFor=");}
+  function reactCode(it){return (it.js?'import { useEffect } from "react";\n\n':'')+'export default function Demo(){\n'+(it.js?'  useEffect(() => {\n    '+it.js.replace(/\n/g,"\n    ")+'\n  }, []);\n\n':'')+'  return (\n    <>\n      <style>{`\n'+(it.css||"")+'\n`}</style>\n      '+jsxOf(it.html)+'\n    </>\n  );\n}';}
+  function vueCode(it){var sc=it.js?('\n<scr'+'ipt setup>\nimport { onMounted } from "vue";\nonMounted(() => {\n  '+it.js.replace(/\n/g,"\n  ")+'\n});\n<\/scr'+'ipt>\n'):'';return '<template>\n  '+(it.html||"")+'\n</template>\n'+sc+'\n<style scoped>\n'+(it.css||"")+'\n</style>\n';}
   function formatsFor(it){
     if(it.type==="gradient")return [["CSS","background: "+it.grad+";"],["Tailwind",'<div class="bg-['+it.grad.replace(/\s+/g,"_")+']"></div>']];
     if(it.type==="palette")return [["CSS Vars",":root{\n"+it.cols.map((c,i)=>"  --c"+(i+1)+": "+c+";").join("\n")+"\n}"],["Hex",it.cols.join("\n")],["Array","["+it.cols.map(c=>'"'+c+'"').join(", ")+"]"]];
     if(it.type==="shadow")return [["CSS","box-shadow: "+shadowCss(it)+";"],["Tailwind",'<div class="shadow-['+shadowCss(it).replace(/\s+/g,"_")+']"></div>']];
-    const o=[["HTML",it.html||""]];if(it.css)o.push(["CSS",it.css]);if(it.js)o.push(["JS",it.js]);return o;
+    const o=[["HTML",it.html||""]];if(it.css)o.push(["CSS",it.css]);if(it.js)o.push(["JS",it.js]);o.push(["React",reactCode(it)],["Vue",vueCode(it)]);return o;
   }
 
   /* ===================== DRAWER ===================== */
   const drawer=document.getElementById("drawer"),scrim=document.getElementById("scrim"),dpv=document.getElementById("dpv");
+  const DEFT=document.title,DEFM=(document.querySelector('meta[name=description]')||{getAttribute:()=>""}).getAttribute("content")||"";
+  function setMeta(d){const m=document.querySelector('meta[name=description]');if(m)m.setAttribute("content",d);}
   function openDrawer(it){
     current=it;previewBg="dark";location.hash=slugOf(it);
     document.getElementById("dname").textContent=it.name;document.getElementById("dcat").textContent=it.cat;
+    document.title=it.name+" · "+it.cat+" — CopyKit";
+    setMeta("Copy-ready "+it.cat+": "+it.name+". Live preview, tweak the colors, copy the code instantly. Free on CopyKit.");
     [...document.querySelectorAll(".pvtoggle button")].forEach(b=>b.classList.toggle("on",b.dataset.bg==="dark"));
     fillPreview(dpv,it,"dark");buildTweak(it);buildFormats(it);syncFavBtn();
+    document.getElementById("savebtn").style.display=it.type==="palette"?"none":"block";
     scrim.classList.add("open");drawer.classList.add("open");
   }
   document.querySelectorAll(".pvtoggle button").forEach(b=>b.addEventListener("click",function(){previewBg=this.dataset.bg;document.querySelectorAll(".pvtoggle button").forEach(x=>x.classList.remove("on"));this.classList.add("on");fillPreview(dpv,current,previewBg);}));
+
+  /* ===================== PLAYGROUND ===================== */
+  const play=document.getElementById("play"),playif=document.getElementById("playif"),playframe=document.getElementById("playframe"),playw=document.getElementById("playw");
+  function setPlayW(w){w=Math.max(300,Math.min(1500,Math.round(w)));playframe.style.width=w+"px";playw.textContent=w+"px";}
+  function openPlay(){if(!current)return;document.getElementById("playname").textContent=current.name;playif.srcdoc=frameDoc(current,previewBg==="light"?"#f4f5fb":"#141021");play.classList.add("open");setPlayW(Math.min(1100,(play.querySelector(".play-stage").clientWidth||1000)-60));}
+  document.getElementById("dplay").addEventListener("click",openPlay);
+  document.getElementById("playx").addEventListener("click",()=>play.classList.remove("open"));
+  play.addEventListener("click",e=>{if(e.target===play)play.classList.remove("open");});
+  play.querySelectorAll(".play-devices button").forEach(b=>b.addEventListener("click",function(){play.querySelectorAll(".play-devices button").forEach(x=>x.classList.remove("on"));this.classList.add("on");setPlayW(+this.dataset.w);}));
+  (function(){const grip=document.getElementById("playgrip");grip.addEventListener("pointerdown",e=>{e.preventDefault();playif.style.pointerEvents="none";const sx=e.clientX,sw=playframe.clientWidth,mv=ev=>setPlayW(sw+(ev.clientX-sx)*2),up=()=>{playif.style.pointerEvents="";removeEventListener("pointermove",mv);removeEventListener("pointerup",up);};addEventListener("pointermove",mv);addEventListener("pointerup",up);});})();
+
+  /* ===================== SAVE EDITED VERSION ===================== */
+  function saveCustom(){
+    if(!current||current.type==="palette")return;
+    let base=current.name.replace(/ ✦.*$/,"")+" ✦",nm=base,k=2;while(ITEMS.some(x=>x.cat===current.cat&&x.name===nm))nm=base+" "+(k++);
+    const snap=Object.assign({},current);delete snap.fx;delete snap.tc;snap.name=nm;snap.custom=true;
+    ITEMS.push(snap);customs.push(snap);localStorage.setItem("ck_customs",JSON.stringify(customs));
+    favs.add(idOf(snap));saveFavs();updateKitCount();buildDD();
+    toast("Saved your version to My Kit ✦");confetti();
+  }
+  document.getElementById("savebtn").addEventListener("click",saveCustom);
   /* ===================== CUSTOM COLOR PICKER ===================== */
   function hsv2rgb(h,s,v){h/=360;const i=Math.floor(h*6),f=h*6-i,p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);let r,g,b;switch(i%6){case 0:r=v;g=t;b=p;break;case 1:r=q;g=v;b=p;break;case 2:r=p;g=v;b=t;break;case 3:r=p;g=q;b=v;break;case 4:r=t;g=p;b=v;break;default:r=v;g=p;b=q;}return [r*255,g*255,b*255];}
   function rgb2hex(r,g,b){const to=x=>Math.round(x).toString(16).padStart(2,"0");return "#"+to(r)+to(g)+to(b);}
@@ -951,7 +1004,7 @@
   function showCode(){const f=formatsFor(current).find(x=>x[0]===curFmt)||formatsFor(current)[0];document.getElementById("dcode").innerHTML=hl(f[1]);}
   function syncFavBtn(){const on=favs.has(idOf(current));const b=document.getElementById("favbtn");b.classList.toggle("on",on);b.textContent=on?"♥ Saved to My Kit":"♡ Save to My Kit";}
   document.getElementById("favbtn").addEventListener("click",()=>toggleFav(current));
-  function closeDrawer(){scrim.classList.remove("open");drawer.classList.remove("open");if(location.hash)history.replaceState(null,"",location.pathname);}
+  function closeDrawer(){scrim.classList.remove("open");drawer.classList.remove("open");document.title=DEFT;setMeta(DEFM);if(location.hash)history.replaceState(null,"",location.pathname);}
   document.getElementById("dx").addEventListener("click",closeDrawer);scrim.addEventListener("click",closeDrawer);
   document.getElementById("dshare").addEventListener("click",()=>{copy(location.origin+location.pathname+"#"+slugOf(current),"Share link copied");});
   function step(dir){const list=(curList&&curList.length&&curList.indexOf(current)>=0)?curList:ITEMS;let i=list.indexOf(current);if(i<0)i=0;openDrawer(list[(i+dir+list.length)%list.length]);}
@@ -987,7 +1040,7 @@
   addEventListener("keydown",e=>{
     const typing=/^(input|textarea)$/i.test(e.target.tagName||"");
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();pal.classList.contains("open")?closePal():openPal();return;}
-    if(e.key==="Escape"){closeDrawer();closeHelp();return;}
+    if(e.key==="Escape"){closeDrawer();closeHelp();play.classList.remove("open");return;}
     if(typing)return;
     if(drawer.classList.contains("open")){if(e.key==="ArrowRight")step(1);else if(e.key==="ArrowLeft")step(-1);}
     if(e.key==="?")toggleHelp();
@@ -1006,6 +1059,7 @@
   function closeHelp(){help.classList.remove("open");}
   document.getElementById("helpx").addEventListener("click",closeHelp);
   help.addEventListener("click",e=>{if(e.target===help)closeHelp();});
+  (function(){const s=document.getElementById("seo");if(s)s.innerHTML='<h1>CopyKit — copy-ready frontend components, gradients, palettes & shadows</h1>'+CATMETA.slice(1).map(c=>'<h2>'+c[1]+' — free copy-paste '+c[1].toLowerCase()+' for developers and designers</h2><p>'+ITEMS.filter(i=>i.cat===c[0]).slice(0,16).map(i=>i.name).join(", ")+'</p>').join("");})();
 
   /* ===================== INIT + DEEP LINK ===================== */
   updateKitCount();render();
