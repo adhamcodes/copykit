@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CopyKit — Theme Showroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Outfit',sans-serif;background:#08090d;color:#e9ecf5;padding:40px 20px 80px;line-height:1.5}
+  .head{text-align:center;max-width:680px;margin:0 auto 40px}
+  .head h1{font-size:26px;font-weight:800}
+  .head p{color:#8b90a6;margin-top:10px;font-family:'IBM Plex Mono';font-size:13px}
+  .row{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .col{display:flex;flex-direction:column;gap:12px}
+  .label{display:flex;align-items:center;gap:10px}
+  .label .num{font-family:'IBM Plex Mono';font-weight:600;font-size:13px;color:#0b0c10;background:#e9ecf5;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+  .label b{font-size:17px}
+  .label small{font-family:'IBM Plex Mono';font-size:11px;color:#8b90a6}
+  .swatches{display:flex;gap:6px}
+  .swatches i{width:22px;height:22px;border-radius:5px;display:block;border:1px solid rgba(255,255,255,.1)}
+
+  /* ===== the mockup ===== */
+  .theme{border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+  .mock{background:var(--bg);color:var(--text);padding:16px;font-family:'Outfit'}
+  .mock .top{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .mock .logo{font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px}
+  .mock .logo .d{width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+  .mock .srch{margin-left:auto;font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:5px 10px;border-radius:7px}
+  .mock .tabs{display:flex;gap:6px;margin-bottom:14px}
+  .mock .tab{font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:5px 11px;border-radius:99px}
+  .mock .tab.on{background:linear-gradient(120deg,var(--accent),var(--accent2));color:var(--onaccent);border-color:transparent}
+  .mock .cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .mock .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .mock .sw{height:60px}
+  .mock .card .cn{font-size:12px;font-weight:600;padding:8px 10px}
+  .mock .pvbtn{height:60px;display:flex;align-items:center;justify-content:center}
+  .mock .minibtn{font-size:11px;font-weight:700;padding:7px 14px;border-radius:9px;background:linear-gradient(120deg,var(--accent),var(--accent2));color:var(--onaccent);border:none}
+  .mock .bigbtn{width:100%;padding:11px;border:none;border-radius:11px;font-weight:700;font-size:14px;background:linear-gradient(120deg,var(--accent),var(--accent2));color:var(--onaccent)}
+  .mock .codeline{font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);margin-top:10px}
+
+  /* THEME 1 — ELECTRIC */
+  .t1{--bg:#0d0b1a;--card:#171430;--line:#2a2545;--accent:#a855f7;--accent2:#ec4899;--text:#ece9f7;--muted:#8b86a8;--onaccent:#fff}
+  /* THEME 2 — DAYLIGHT */
+  .t2{--bg:#f5f7fb;--card:#ffffff;--line:#e6e9f0;--accent:#6d5efc;--accent2:#22b8cf;--text:#14141f;--muted:#6b7280;--onaccent:#fff}
+  /* THEME 3 — WARMTH */
+  .t3{--bg:#14100e;--card:#1f1815;--line:#332a23;--accent:#ff8a4c;--accent2:#f5b301;--text:#f3e9e2;--muted:#a8978a;--onaccent:#1a0f06}
+
+  @media(max-width:840px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>CopyKit — pick a theme</h1>
+    <p>Same craft as your portfolio, its OWN identity. Reply with 1, 2, or 3. (Fonts: Outfit + IBM Plex Mono)</p>
+  </div>
+
+  <div class="row">
+    <!-- 1 ELECTRIC -->
+    <div class="col">
+      <div class="label"><span class="num">1</span><b>Electric</b><small>playful · creative</small></div>
+      <div class="swatches"><i style="background:#0d0b1a"></i><i style="background:#a855f7"></i><i style="background:#ec4899"></i><i style="background:#ece9f7"></i></div>
+      <div class="theme t1"><div class="mock">
+        <div class="top"><span class="logo"><span class="d"></span>CopyKit</span><span class="srch">⌘K</span></div>
+        <div class="tabs"><span class="tab on">Gradients</span><span class="tab">Buttons</span><span class="tab">Toggles</span></div>
+        <div class="cards">
+          <div class="card"><div class="sw" style="background:linear-gradient(135deg,#a855f7,#ec4899)"></div><div class="cn">Candy</div></div>
+          <div class="card"><div class="pvbtn"><button class="minibtn">Button</button></div><div class="cn">Glow</div></div>
+        </div>
+        <button class="bigbtn">Copy code</button>
+        <div class="codeline">background: linear-gradient(...)</div>
+      </div></div>
+    </div>
+
+    <!-- 2 DAYLIGHT -->
+    <div class="col">
+      <div class="label"><span class="num">2</span><b>Daylight</b><small>clean · bright</small></div>
+      <div class="swatches"><i style="background:#f5f7fb"></i><i style="background:#6d5efc"></i><i style="background:#22b8cf"></i><i style="background:#14141f"></i></div>
+      <div class="theme t2"><div class="mock">
+        <div class="top"><span class="logo"><span class="d"></span>CopyKit</span><span class="srch">⌘K</span></div>
+        <div class="tabs"><span class="tab on">Gradients</span><span class="tab">Buttons</span><span class="tab">Toggles</span></div>
+        <div class="cards">
+          <div class="card"><div class="sw" style="background:linear-gradient(135deg,#6d5efc,#22b8cf)"></div><div class="cn">Ocean</div></div>
+          <div class="card"><div class="pvbtn"><button class="minibtn">Button</button></div><div class="cn">Glow</div></div>
+        </div>
+        <button class="bigbtn">Copy code</button>
+        <div class="codeline">background: linear-gradient(...)</div>
+      </div></div>
+    </div>
+
+    <!-- 3 WARMTH -->
+    <div class="col">
+      <div class="label"><span class="num">3</span><b>Warmth</b><small>cozy · premium</small></div>
+      <div class="swatches"><i style="background:#14100e"></i><i style="background:#ff8a4c"></i><i style="background:#f5b301"></i><i style="background:#f3e9e2"></i></div>
+      <div class="theme t3"><div class="mock">
+        <div class="top"><span class="logo"><span class="d"></span>CopyKit</span><span class="srch">⌘K</span></div>
+        <div class="tabs"><span class="tab on">Gradients</span><span class="tab">Buttons</span><span class="tab">Toggles</span></div>
+        <div class="cards">
+          <div class="card"><div class="sw" style="background:linear-gradient(135deg,#ff8a4c,#f5b301)"></div><div class="cn">Sunset</div></div>
+          <div class="card"><div class="pvbtn"><button class="minibtn">Button</button></div><div class="cn">Glow</div></div>
+        </div>
+        <button class="bigbtn">Copy code</button>
+        <div class="codeline">background: linear-gradient(...)</div>
+      </div></div>
+    </div>
+  </div>
+</body>
+</html>
