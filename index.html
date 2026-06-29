@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CopyKit — Beautiful gradients & palettes, one click to copy</title>
+<meta name="description" content="A growing hub of gorgeous gradients and color palettes for designers & developers. Click anything to copy the code instantly." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230a0e0c'/%3E%3Ctext%20x='16'%20y='23'%20font-family='monospace'%20font-size='18'%20font-weight='700'%20fill='%2334d399'%20text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e0c;--bg2:#0e1311;--card:#121a16;--line:#1e2a25;--green:#34d399;--green2:#2dd4bf;--text:#e9f0ec;--muted:#86988f}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  a{color:inherit;text-decoration:none}
+
+  header{position:sticky;top:0;z-index:50;background:rgba(10,14,12,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  nav{display:flex;align-items:center;gap:20px;height:66px}
+  .logo{font-weight:700;font-size:20px;display:flex;align-items:center;gap:9px}
+  .logo .d{width:10px;height:10px;border-radius:3px;background:linear-gradient(135deg,var(--green),var(--green2))}
+  .tabs{display:flex;gap:6px;margin-left:auto}
+  .tabs a{font-family:'JetBrains Mono';font-size:13px;color:var(--muted);padding:8px 14px;border-radius:8px;transition:.2s}
+  .tabs a:hover{color:var(--text);background:var(--card)}
+  .ghub{font-family:'JetBrains Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);padding:8px 12px;border-radius:8px}
+  .ghub:hover{color:var(--text);border-color:var(--green)}
+
+  .hero{text-align:center;padding:70px 0 40px}
+  .hero h1{font-size:clamp(32px,5.5vw,52px);font-weight:700;letter-spacing:-1px;line-height:1.1}
+  .hero h1 span{background:linear-gradient(120deg,var(--green),var(--green2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .hero p{color:var(--muted);font-size:18px;margin-top:16px}
+  .hero .hint{font-family:'JetBrains Mono';font-size:13px;color:var(--green);margin-top:18px}
+
+  section{padding:30px 0 50px}
+  .shead{display:flex;align-items:center;gap:12px;margin:24px 0 22px}
+  .shead h2{font-size:24px;font-weight:700}
+  .shead .count{font-family:'JetBrains Mono';font-size:12px;color:var(--muted);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
+
+  /* GRADIENTS */
+  .ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .gcard{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);cursor:pointer;transition:.2s;position:relative}
+  .gcard:hover{transform:translateY(-4px);border-color:var(--green)}
+  .gcard .sw{height:130px}
+  .gcard .gb{padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+  .gcard .gn{font-size:14px;font-weight:600}
+  .gcard .gc{font-family:'JetBrains Mono';font-size:11px;color:var(--muted)}
+  .gcard .ov{position:absolute;inset:0 0 auto 0;height:130px;display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s}
+  .gcard:hover .ov{opacity:1}
+  .gcard .ov span{background:rgba(0,0,0,.55);backdrop-filter:blur(4px);color:#fff;font-family:'JetBrains Mono';font-size:12px;padding:8px 14px;border-radius:999px}
+
+  /* PALETTES */
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .pcard{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+  .prow{display:flex;height:90px}
+  .prow .pc{flex:1;cursor:pointer;position:relative;transition:flex .25s}
+  .prow .pc:hover{flex:1.6}
+  .prow .pc span{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-family:'JetBrains Mono';font-size:10px;color:#fff;opacity:0;transition:.2s;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+  .prow .pc:hover span{opacity:1}
+  .pcard .pb{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+  .pcard .pn{font-size:14px;font-weight:600}
+  .pcard .pcopy{font-family:'JetBrains Mono';font-size:11px;color:var(--muted);cursor:pointer}
+  .pcard .pcopy:hover{color:var(--green)}
+
+  footer{border-top:1px solid var(--line);padding:36px 0;text-align:center;color:var(--muted);font-family:'JetBrains Mono';font-size:13px;margin-top:30px}
+  footer a{color:var(--green)}
+
+  #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--green);color:#04140d;font-family:'JetBrains Mono';font-weight:500;font-size:13px;padding:11px 20px;border-radius:999px;opacity:0;transition:.3s;z-index:100;pointer-events:none}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(max-width:900px){.ggrid{grid-template-columns:repeat(2,1fr)}.pgrid{grid-template-columns:1fr}.tabs{display:none}}
+</style>
+</head>
+<body>
+  <header><div class="wrap"><nav>
+    <div class="logo"><span class="d"></span>CopyKit</div>
+    <div class="tabs">
+      <a href="#gradients">Gradients</a>
+      <a href="#palettes">Palettes</a>
+    </div>
+    <a class="ghub" href="https://portfolio-adham-mu.vercel.app" target="_blank">by Adham ↗</a>
+  </nav></div></header>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>Beautiful <span>gradients &amp; palettes.</span><br>One click to copy.</h1>
+      <p>A growing hub for designers &amp; developers. No sign-up, no fuss — just grab the code.</p>
+      <div class="hint">↓ click anything to copy it</div>
+    </div>
+
+    <section id="gradients">
+      <div class="shead"><h2>Gradients</h2><span class="count" id="gcount"></span></div>
+      <div class="ggrid" id="ggrid"></div>
+    </section>
+
+    <section id="palettes">
+      <div class="shead"><h2>Color Palettes</h2><span class="count" id="pcount"></span></div>
+      <div class="pgrid" id="pgrid"></div>
+    </section>
+  </div>
+
+  <footer><div class="wrap">CopyKit — made with 🤍 by <a href="https://portfolio-adham-mu.vercel.app" target="_blank">Adham</a> · more coming soon (shadows, buttons, glass…)</div></footer>
+
+  <div id="toast"></div>
+
+  <script>
+    // ===== DATA (add a new gradient/palette = add one line here) =====
+    const GRADIENTS = [
+      {n:"Aurora",  c:"linear-gradient(160deg,#0b3b2e,#0e7490)"},
+      {n:"Emerald", c:"linear-gradient(160deg,#10241d,#1f6f5c)"},
+      {n:"Cyan",    c:"linear-gradient(160deg,#0e2a3a,#2dd4bf)"},
+      {n:"Lime",    c:"linear-gradient(160deg,#1a2a10,#5b8a2a)"},
+      {n:"Ocean",   c:"linear-gradient(160deg,#0b2230,#0e7490)"},
+      {n:"Indigo",  c:"linear-gradient(160deg,#13243a,#3b5bdb)"},
+      {n:"Violet",  c:"linear-gradient(160deg,#241033,#7c3aed)"},
+      {n:"Amber",   c:"linear-gradient(160deg,#2a1810,#b45309)"},
+      {n:"Cobalt",  c:"linear-gradient(160deg,#0e2235,#2563eb)"},
+      {n:"Fable",   c:"linear-gradient(160deg,#241033,#a855f7)"},
+      {n:"Teal",    c:"linear-gradient(160deg,#10241d,#0d9488)"},
+      {n:"Sky",     c:"linear-gradient(160deg,#0b2230,#06b6d4)"},
+      {n:"Sunset",  c:"linear-gradient(135deg,#ff7e5f,#feb47b)"},
+      {n:"Candy",   c:"linear-gradient(135deg,#ff5f9e,#a855f7)"},
+      {n:"Mint",    c:"linear-gradient(135deg,#0b3b2e,#34d399)"},
+      {n:"Magma",   c:"linear-gradient(135deg,#3a0ca3,#f72585)"},
+      {n:"Citrus",  c:"linear-gradient(135deg,#f9d423,#ff4e50)"},
+      {n:"Steel",   c:"linear-gradient(160deg,#1a1f2a,#64748b)"},
+      {n:"Midnight",c:"linear-gradient(160deg,#020617,#1e293b)"},
+      {n:"Rose",    c:"linear-gradient(135deg,#e0245e,#ffb199)"}
+    ];
+    const PALETTES = [
+      {n:"Forest",   cols:["#0b3b2e","#0e7490","#34d399","#a7f3d0","#ecfdf5"]},
+      {n:"Sunset",   cols:["#3a0ca3","#7209b7","#f72585","#ff7e5f","#feb47b"]},
+      {n:"Slate",    cols:["#0f172a","#1e293b","#475569","#94a3b8","#e2e8f0"]},
+      {n:"Candy",    cols:["#ff5f9e","#c026d3","#7c3aed","#4361ee","#4cc9f0"]},
+      {n:"Earth",    cols:["#2a1810","#7c3a12","#b45309","#d4a017","#fef3c7"]},
+      {n:"Ocean",    cols:["#03045e","#0077b6","#00b4d8","#90e0ef","#caf0f8"]},
+      {n:"Mono",     cols:["#0a0a0a","#262626","#525252","#a3a3a3","#f5f5f5"]},
+      {n:"Bloom",    cols:["#14532d","#16a34a","#86efac","#fde68a","#f59e0b"]},
+      {n:"Berry",    cols:["#4a044e","#86198f","#d946ef","#f0abfc","#fae8ff"]}
+    ];
+
+    // ===== RENDER =====
+    const toast=(t)=>{const e=document.getElementById('toast');e.textContent=t;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('show'),1400);};
+    const copy=(text,label)=>{navigator.clipboard.writeText(text).then(()=>toast((label||'Copied')+' ✓')).catch(()=>toast('Copy failed'));};
+
+    const ggrid=document.getElementById('ggrid');
+    GRADIENTS.forEach(g=>{
+      const css="background: "+g.c+";";
+      const el=document.createElement('div'); el.className='gcard';
+      el.innerHTML='<div class="sw" style="background:'+g.c+'"></div>'+
+        '<div class="ov"><span>Click to copy CSS</span></div>'+
+        '<div class="gb"><span class="gn">'+g.n+'</span><span class="gc">CSS</span></div>';
+      el.addEventListener('click',()=>copy(css, g.n+' CSS'));
+      ggrid.appendChild(el);
+    });
+    document.getElementById('gcount').textContent=GRADIENTS.length+' gradients';
+
+    const pgrid=document.getElementById('pgrid');
+    PALETTES.forEach(p=>{
+      const el=document.createElement('div'); el.className='pcard';
+      let row='<div class="prow">';
+      p.cols.forEach(c=>{ row+='<div class="pc" data-hex="'+c+'" style="background:'+c+'"><span>'+c+'</span></div>'; });
+      row+='</div>';
+      el.innerHTML=row+'<div class="pb"><span class="pn">'+p.n+'</span><span class="pcopy">copy all</span></div>';
+      el.querySelectorAll('.pc').forEach(sw=>sw.addEventListener('click',()=>copy(sw.dataset.hex, sw.dataset.hex)));
+      el.querySelector('.pcopy').addEventListener('click',()=>copy(p.cols.join(', '), p.n+' palette'));
+      pgrid.appendChild(el);
+    });
+    document.getElementById('pcount').textContent=PALETTES.length+' palettes';
+  </script>
+</body>
+</html>
