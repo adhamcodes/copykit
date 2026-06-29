@@ -3,12 +3,21 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CopyKit — Beautiful, copy-ready frontend magic</title>
-<meta name="description" content="A living gallery of gorgeous gradients, palettes, buttons, toggles, shadows, loaders, text effects, glass cards, backgrounds & cursor effects. Play live, tweak, and copy the code instantly." />
+<title>CopyKit — 250+ copy-ready gradients, palettes, shadows & UI components</title>
+<meta name="description" content="A living, tweakable library of gradients, palettes, shadows, buttons, loaders, text effects, cards, backgrounds & cursor magic. Play live, tweak it, copy the code in one click. Free, no signup. Built for developers, designers & motion artists." />
+<meta name="keywords" content="css gradients, color palettes, box shadow generator, css buttons, loaders, tailwind, ui components, copy paste css, frontend tools, css generator, design resources" />
+<meta name="author" content="Adham" />
+<link rel="canonical" href="https://copykit.vercel.app/" />
 <meta property="og:title" content="CopyKit — frontend magic, ready to copy" />
-<meta property="og:description" content="Live, tweakable, copy-ready gradients & UI components for developers." />
+<meta property="og:description" content="250+ live, tweakable, copy-ready gradients & UI components. Free, no signup. For developers, designers & motion artists." />
 <meta property="og:type" content="website" />
+<meta property="og:url" content="https://copykit.vercel.app/" />
+<meta property="og:site_name" content="CopyKit" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="CopyKit — frontend magic, ready to copy" />
+<meta name="twitter:description" content="250+ live, tweakable, copy-ready gradients & UI components. Free, no signup." />
 <meta name="theme-color" content="#09070f" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CopyKit","url":"https://copykit.vercel.app/","applicationCategory":"DeveloperApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A living, tweakable library of copy-ready gradients, palettes, shadows and UI components for developers and designers.","author":{"@type":"Person","name":"Adham"}}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2309070f'/%3E%3Ctext%20x='16'%20y='23'%20font-family='monospace'%20font-size='18'%20font-weight='700'%20fill='%23a855f7'%20text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -139,6 +148,13 @@
   .ftab{font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:7px 13px;border-radius:8px;cursor:none}
   .ftab.on{color:var(--text);border-color:var(--green)}
   .codebox pre{background:#070510;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:10px;overflow-x:auto;font-family:'IBM Plex Mono';font-size:12.5px;line-height:1.6;color:#d8cdE8;white-space:pre-wrap;word-break:break-word;max-height:240px}
+  .codebox .t-c{color:#6b6486;font-style:italic}
+  .codebox .t-s{color:#86e1c5}
+  .codebox .t-n{color:#f3b46a}
+  .codebox .t-p{color:#c490f0}
+  .codebox .t-h{color:#e8e4f3}
+  .codebox .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle;border:1px solid rgba(255,255,255,.25)}
+  .copybtn.ok{background:#16a34a}
   .copybtn{width:100%;margin-top:14px;background:linear-gradient(120deg,var(--green),var(--cyan));color:#fff;font-family:'Outfit';font-weight:700;font-size:15px;border:none;border-radius:12px;padding:14px;cursor:none}
   .favbtn{width:100%;margin-top:10px;background:none;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:none;font-family:'IBM Plex Mono';font-size:13px}
   .favbtn.on{border-color:#ff5a7a;color:#ff5a7a}
@@ -155,8 +171,29 @@
   #toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:linear-gradient(120deg,var(--green),var(--cyan));color:#fff;font-family:'IBM Plex Mono';font-weight:500;font-size:13px;padding:11px 20px;border-radius:999px;opacity:0;transition:.3s;z-index:300;pointer-events:none}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  footer{border-top:1px solid var(--line);padding:34px 0;text-align:center;color:var(--muted);font-family:'IBM Plex Mono';font-size:13px}
-  footer a{color:var(--green)}
+  footer{border-top:1px solid var(--line);padding:54px 0 30px;margin-top:44px;color:var(--muted);font-family:'Outfit'}
+  .fcols{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:30px}
+  .fbrand .logo{font-size:19px}
+  .fbrand p{font-size:14px;margin:14px 0 16px;max-width:300px;line-height:1.6}
+  .fsocial{display:flex;gap:10px;flex-wrap:wrap}
+  .fsocial a,.fsocial button{font-family:'IBM Plex Mono';font-size:12px;color:var(--text);background:var(--card);border:1px solid var(--line);padding:9px 13px;border-radius:9px;cursor:none;transition:.2s}
+  .fsocial a:hover,.fsocial button:hover{border-color:var(--green);color:var(--green)}
+  .fcol h4{font-family:'IBM Plex Mono';font-size:12px;color:var(--text);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+  .fcol a,.fcol span{display:block;font-size:14px;color:var(--muted);padding:5px 0;cursor:none;transition:.15s}
+  .fcol a:hover{color:var(--green);transform:translateX(3px)}
+  .fbot{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);font-family:'IBM Plex Mono';font-size:12.5px;text-align:center}
+  .fbot a{color:var(--green)}.fbot b{color:var(--text)}
+  @media(max-width:720px){.fcols{grid-template-columns:1fr 1fr}}
+  #totop{position:fixed;right:24px;bottom:26px;width:46px;height:46px;border-radius:50%;background:linear-gradient(120deg,var(--green),var(--cyan));color:#fff;border:none;font-size:18px;cursor:none;z-index:80;opacity:0;visibility:hidden;transform:translateY(14px);transition:.3s;box-shadow:0 12px 30px rgba(139,70,214,.45)}
+  #totop.show{opacity:1;visibility:visible;transform:none}
+  #help{position:fixed;inset:0;z-index:210;background:rgba(4,3,8,.62);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
+  #help.open{display:flex}
+  .helpbox{width:min(420px,92vw);background:rgba(13,10,23,.98);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .helpbox .hh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .helpbox h3{font-size:17px}
+  .helpbox .hh button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;width:32px;height:32px;cursor:none}
+  .hrow{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+  .hrow kbd{font-family:'IBM Plex Mono';font-size:12px;color:var(--text);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:4px 9px}
 
   @media(max-width:600px){.search{display:none}.surprise{display:none}.ghlink{display:none}.marquee{margin:28px 0 6px}}
   @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.card{opacity:1;transform:none}}
@@ -194,12 +231,37 @@
     <div class="grid" id="grid"></div>
   </div>
 
-  <footer><div class="wrap">CopyKit — crafted by <a href="https://portfolio-adham-mu.vercel.app" target="_blank">Adham</a> · psst, try the ↑↑↓↓←→←→ B A 🟣</div></footer>
+  <footer>
+    <div class="wrap fcols">
+      <div class="fbrand">
+        <div class="logo"><span class="d"></span><b>CopyKit</b></div>
+        <p>A living library of copy-ready frontend magic. Live previews, tweak before you copy, build your own kit. Free, no signup — forever.</p>
+        <div class="fsocial">
+          <a href="https://github.com/adhamcodes/copykit" target="_blank">★ GitHub</a>
+          <button id="shareX">Share on X</button>
+          <button id="shareCopy">Copy link</button>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Explore</h4>
+        <a data-cat="gradients">Gradients</a><a data-cat="palettes">Palettes</a><a data-cat="shadows">Shadows</a><a data-cat="buttons">Buttons</a><a data-cat="loaders">Loaders</a>
+      </div>
+      <div class="fcol">
+        <h4>More</h4>
+        <a data-cat="cards">Cards</a><a data-cat="backgrounds">Backgrounds</a><a data-cat="textfx">Text FX</a><a data-cat="avatars">Avatars</a><a data-cat="progress">Progress</a>
+      </div>
+      <div class="fcol">
+        <h4>Built for</h4>
+        <span>Developers</span><span>Designers</span><span>Motion artists</span><span>Video editors</span>
+      </div>
+    </div>
+    <div class="wrap fbot">Crafted by <a href="https://portfolio-adham-mu.vercel.app" target="_blank">Adham</a> · press <b>?</b> for shortcuts · psst, try ↑↑↓↓←→←→ B A 🟣</div>
+  </footer>
 
   <div class="scrim" id="scrim"></div>
   <aside class="drawer" id="drawer">
     <div class="dh"><div><div class="dcat" id="dcat"></div><h3 id="dname"></h3></div>
-      <div class="hd"><button id="dshare" title="Copy share link">↗</button><button id="dx" title="Close">×</button></div></div>
+      <div class="hd"><button id="dprev" title="Previous (←)">‹</button><button id="dnext" title="Next (→)">›</button><button id="dshare" title="Copy share link">↗</button><button id="dx" title="Close">×</button></div></div>
     <div class="dbody">
       <div class="dpv-wrap">
         <div class="pvtoggle"><button data-bg="dark" class="on">Dark</button><button data-bg="light">Light</button></div>
@@ -212,6 +274,16 @@
       <button class="favbtn" id="favbtn">♡ Save to My Kit</button>
     </div>
   </aside>
+
+  <button id="totop" title="Back to top">↑</button>
+  <div id="help"><div class="helpbox">
+    <div class="hh"><h3>Keyboard shortcuts</h3><button id="helpx">×</button></div>
+    <div class="hrow"><span>Open search palette</span><kbd>⌘ K</kbd></div>
+    <div class="hrow"><span>Focus the search bar</span><kbd>/</kbd></div>
+    <div class="hrow"><span>Browse items (in drawer)</span><kbd>← →</kbd></div>
+    <div class="hrow"><span>Show this help</span><kbd>?</kbd></div>
+    <div class="hrow"><span>Close anything</span><kbd>Esc</kbd></div>
+  </div></div>
 
   <div id="pal"><div class="palbox"><input id="palin" placeholder="Search CopyKit…"><div class="palist" id="palist"></div></div></div>
   <div id="toast"></div>
@@ -332,7 +404,43 @@
     C("skeletons","Image Block",'<div class="sk"></div>','.sk{width:150px;height:100px;border-radius:14px;background:linear-gradient(100deg,#1d1730 30%,#2c2342 50%,#1d1730 70%);background-size:220% 100%;animation:s 1.4s linear infinite}@keyframes s{to{background-position:-220% 0}}',null,"#141021")
   );
 
-  const CATMETA=[["all","All"],["gradients","Gradients"],["palettes","Palettes"],["buttons","Buttons"],["toggles","Toggles"],["inputs","Inputs"],["badges","Badges"],["shadows","Shadows"],["loaders","Loaders"],["skeletons","Skeletons"],["textfx","Text FX"],["cards","Cards"],["backgrounds","Backgrounds"],["cursors","Cursors"]];
+  // Expanded components + new categories
+  ITEMS.push(
+    C("buttons","Fill Up",'<button class="b">Subscribe</button>','.b{position:relative;font:600 16px Outfit,system-ui;padding:13px 30px;border:1.5px solid #a855f7;border-radius:12px;color:#fff;background:transparent;overflow:hidden;cursor:pointer;z-index:0}.b::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,#a855f7,#ec4899);transform:translateY(100%);transition:.3s;z-index:-1}.b:hover::before{transform:translateY(0)}'),
+    C("buttons","Soft 3D",'<button class="b">Confirm</button>','.b{font:700 16px Outfit,system-ui;padding:14px 30px;border:none;border-radius:14px;color:#fff;background:#a855f7;box-shadow:0 4px 0 #7c3aed,0 8px 18px rgba(124,58,237,.4);cursor:pointer;transition:.12s}.b:active{transform:translateY(3px);box-shadow:0 1px 0 #7c3aed}'),
+    C("buttons","Glow Ring",'<button class="b">Connect</button>','.b{font:600 16px Outfit,system-ui;padding:13px 30px;border:none;border-radius:99px;color:#fff;background:#15111f;outline:2px solid rgba(168,85,247,.5);outline-offset:2px;cursor:pointer;transition:.25s}.b:hover{outline-color:#ec4899;box-shadow:0 0 22px rgba(168,85,247,.55)}'),
+    C("toggles","Square Snap",'<label class="s"><input type="checkbox" checked><span></span></label>','.s input{display:none}.s span{display:block;width:58px;height:30px;background:#2a2440;border-radius:8px;position:relative;cursor:pointer;transition:.3s}.s span::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:6px;transition:.3s}.s input:checked+span{background:linear-gradient(120deg,#a855f7,#ec4899)}.s input:checked+span::after{transform:translateX(28px)}'),
+    C("toggles","Yes / No",'<label class="s"><input type="checkbox"><span></span></label>','.s input{display:none}.s span{display:flex;align-items:center;width:84px;height:34px;border-radius:99px;background:#2a2440;position:relative;cursor:pointer;transition:.3s;font:700 11px Outfit,system-ui;color:#fff}.s span::before{content:"NO";position:absolute;right:14px}.s span::after{content:"";position:absolute;top:3px;left:3px;width:28px;height:28px;background:#fff;border-radius:50%;transition:.3s}.s input:checked+span{background:#16a34a}.s input:checked+span::before{content:"YES";left:14px;right:auto}.s input:checked+span::after{transform:translateX(50px)}'),
+    C("inputs","Floating Label",'<div class="fl"><input id="fi" placeholder=" "><label for="fi">Email address</label></div>','.fl{position:relative;width:230px}.fl input{width:100%;font:500 15px Outfit,system-ui;padding:16px 14px 8px;background:#15111f;border:1.5px solid #2a2440;border-radius:12px;color:#fff;outline:none}.fl label{position:absolute;left:15px;top:14px;color:#6b6486;font:500 14px Outfit,system-ui;pointer-events:none;transition:.18s}.fl input:focus+label,.fl input:not(:placeholder-shown)+label{top:6px;font-size:10px;color:#a855f7}.fl input:focus{border-color:#a855f7}',null,"#141021"),
+    C("inputs","OTP Boxes",'<div class="otp"><input maxlength=1 value=4><input maxlength=1 value=2><input maxlength=1><input maxlength=1></div>','.otp{display:flex;gap:10px}.otp input{width:46px;height:54px;text-align:center;font:700 22px Outfit,system-ui;background:#15111f;border:1.5px solid #2a2440;border-radius:12px;color:#fff;outline:none;transition:.2s}.otp input:focus{border-color:#a855f7;box-shadow:0 0 0 4px rgba(168,85,247,.18)}',null,"#141021"),
+    C("badges","Soft",'<span class="bg">Beta</span>','.bg{font:600 12px Outfit,system-ui;padding:5px 13px;border-radius:8px;background:rgba(52,211,153,.14);color:#34d399}',null,"#141021"),
+    C("badges","Icon",'<span class="bg">✓ Verified</span>','.bg{font:600 12px Outfit,system-ui;display:inline-flex;gap:5px;padding:5px 13px;border-radius:999px;background:rgba(37,99,235,.16);color:#60a5fa}',null,"#141021"),
+    C("loaders","Wave",'<div class="ld"><i></i><i></i><i></i><i></i><i></i></div>','.ld{display:flex;gap:5px;align-items:center;height:40px}.ld i{width:6px;height:18px;border-radius:3px;background:#a855f7;animation:wv 1s ease infinite}.ld i:nth-child(2){animation-delay:.1s}.ld i:nth-child(3){animation-delay:.2s}.ld i:nth-child(4){animation-delay:.3s}.ld i:nth-child(5){animation-delay:.4s}@keyframes wv{0%,100%{height:14px}50%{height:36px}}'),
+    C("loaders","Comet",'<div class="ld"></div>','.ld{width:44px;height:44px;border-radius:50%;background:conic-gradient(from 0deg,transparent,#a855f7);-webkit-mask:radial-gradient(circle 16px,transparent 98%,#000);mask:radial-gradient(circle 16px,transparent 98%,#000);animation:sp .9s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}'),
+    C("textfx","Gradient Shadow",'<div class="t">Bold</div>','.t{font:800 46px Outfit,system-ui;color:#fff;text-shadow:3px 3px 0 #a855f7,6px 6px 0 rgba(236,72,153,.5)}'),
+    C("textfx","Fade Pulse",'<div class="t">Rise</div>','.t{font:800 46px Outfit,system-ui;background:linear-gradient(120deg,#a855f7,#ec4899);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:fu 1.6s ease infinite alternate}@keyframes fu{from{transform:translateY(6px);opacity:.6}to{transform:translateY(-6px);opacity:1}}'),
+    C("cards","Pricing",'<div class="pc"><div class="pt">Pro</div><div class="pp">$12<span>/mo</span></div><div class="pbtn">Get started</div></div>','.pc{width:160px;padding:22px;border-radius:18px;background:#15111f;border:1px solid #2a2440;text-align:center}.pc .pt{font:600 13px Outfit,system-ui;color:#a855f7;text-transform:uppercase;letter-spacing:.08em}.pc .pp{font:800 34px Outfit,system-ui;color:#fff;margin:8px 0 14px}.pc .pp span{font-size:13px;color:#857f9c;font-weight:500}.pc .pbtn{font:600 13px Outfit,system-ui;color:#fff;background:linear-gradient(120deg,#a855f7,#ec4899);padding:10px;border-radius:10px}',null,"#141021"),
+    C("cards","Glow Border",'<div class="gc">Featured</div>','.gc{width:160px;height:100px;border-radius:18px;background:#15111f;display:flex;align-items:center;justify-content:center;color:#fff;font:600 16px Outfit,system-ui;box-shadow:0 0 0 1px rgba(168,85,247,.4),0 0 30px rgba(168,85,247,.3);animation:gw 2.5s ease infinite}@keyframes gw{50%{box-shadow:0 0 0 1px rgba(236,72,153,.6),0 0 40px rgba(236,72,153,.45)}}',null,"#141021"),
+    C("backgrounds","Noise Glow",'<div class="bg"></div>','.bg{width:100%;height:100%;background:radial-gradient(circle at 30% 30%,#3d1a5e,transparent 50%),radial-gradient(circle at 70% 70%,#5e1a48,transparent 50%),#0d0a17}'),
+    C("backgrounds","Diagonal",'<div class="bg"></div>','.bg{width:100%;height:100%;background:linear-gradient(135deg,#0d0a17 25%,#1a1330 25% 50%,#0d0a17 50% 75%,#1a1330 75%);background-size:40px 40px}'),
+    C("cursors","Dot Trail",'<div class="stage">move your mouse</div>','.stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#4a4360;font:600 14px Outfit,system-ui;cursor:crosshair;overflow:hidden}.dt{position:absolute;width:8px;height:8px;border-radius:50%;background:#a855f7;pointer-events:none;transform:translate(-50%,-50%)}','addEventListener("mousemove",e=>{var d=document.createElement("div");d.className="dt";d.style.left=e.clientX+"px";d.style.top=e.clientY+"px";document.body.appendChild(d);setTimeout(function(){d.style.transition="opacity .5s";d.style.opacity=0;},10);setTimeout(function(){d.remove();},520);})',"#141021"),
+    C("dividers","Gradient Line",'<div class="dv"></div>','.dv{width:240px;height:2px;background:linear-gradient(90deg,transparent,#a855f7,#ec4899,transparent)}'),
+    C("dividers","Label",'<div class="dv"><span>OR</span></div>','.dv{display:flex;align-items:center;gap:14px;width:240px;color:#857f9c;font:600 12px Outfit,system-ui}.dv::before,.dv::after{content:"";flex:1;height:1px;background:#2a2440}'),
+    C("dividers","Dots",'<div class="dv"><i></i><i></i><i></i></div>','.dv{display:flex;gap:10px}.dv i{width:7px;height:7px;border-radius:50%;background:#a855f7;opacity:.55}.dv i:nth-child(2){opacity:.8}.dv i:nth-child(3){opacity:1}'),
+    C("tooltips","On Top",'<div class="tp">Hover me<span>Nice tooltip ✨</span></div>','.tp{position:relative;font:600 15px Outfit,system-ui;color:#fff;background:#15111f;border:1px solid #2a2440;padding:11px 18px;border-radius:10px;cursor:pointer}.tp span{position:absolute;bottom:120%;left:50%;transform:translateX(-50%) translateY(6px);background:linear-gradient(120deg,#a855f7,#ec4899);color:#fff;font:600 12px Outfit,system-ui;padding:7px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.tp:hover span{opacity:1;transform:translateX(-50%) translateY(0)}',null,"#141021"),
+    C("tooltips","With Arrow",'<div class="tp">Info<span>With an arrow</span></div>','.tp{position:relative;font:600 15px Outfit,system-ui;color:#fff;background:#15111f;border:1px solid #2a2440;padding:11px 18px;border-radius:10px;cursor:pointer}.tp span{position:absolute;bottom:132%;left:50%;transform:translateX(-50%);background:#241d38;color:#fff;font:500 12px Outfit,system-ui;padding:8px 12px;border-radius:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s}.tp span::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:#241d38}.tp:hover span{opacity:1}',null,"#141021"),
+    C("avatars","Ring",'<div class="av">A</div>','.av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 24px Outfit,system-ui;color:#fff;background:#7c3aed;outline:2px solid #ec4899;outline-offset:3px}',null,"#141021"),
+    C("avatars","Status",'<div class="av">M<i></i></div>','.av{position:relative;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 24px Outfit,system-ui;color:#fff;background:linear-gradient(135deg,#a855f7,#ec4899)}.av i{position:absolute;bottom:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#34d399;border:3px solid #141021}',null,"#141021"),
+    C("avatars","Stacked",'<div class="stk"><div>A</div><div>B</div><div>C</div></div>','.stk{display:flex}.stk div{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:700 18px Outfit,system-ui;color:#fff;border:3px solid #141021;margin-left:-14px}.stk div:first-child{margin-left:0;background:#7c3aed}.stk div:nth-child(2){background:#c43d8a}.stk div:nth-child(3){background:#0ea5e9}',null,"#141021"),
+    C("progress","Gradient Bar",'<div class="pgb"><i></i></div>','.pgb{width:220px;height:12px;border-radius:99px;background:#2a2440;overflow:hidden}.pgb i{display:block;width:68%;height:100%;border-radius:99px;background:linear-gradient(90deg,#a855f7,#ec4899)}'),
+    C("progress","Striped",'<div class="pgb"><i></i></div>','.pgb{width:220px;height:14px;border-radius:99px;background:#2a2440;overflow:hidden}.pgb i{display:block;width:55%;height:100%;background:repeating-linear-gradient(45deg,#a855f7,#a855f7 10px,#7c3aed 10px,#7c3aed 20px);animation:mv 1s linear infinite}@keyframes mv{to{background-position:28px 0}}'),
+    C("progress","Ring 75%",'<div class="pgr"></div>','.pgr{width:60px;height:60px;border-radius:50%;background:conic-gradient(#a855f7 75%,#2a2440 0)}'),
+    C("alerts","Success",'<div class="al">✓ Changes saved successfully</div>','.al{font:600 14px Outfit,system-ui;color:#34d399;background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.3);border-left:4px solid #34d399;padding:13px 18px;border-radius:10px}',null,"#141021"),
+    C("alerts","Gradient Banner",'<div class="al">🎉 You unlocked a new feature!</div>','.al{font:600 14px Outfit,system-ui;color:#fff;background:linear-gradient(120deg,#a855f7,#ec4899);padding:13px 20px;border-radius:12px}'),
+    C("alerts","Error",'<div class="al">⚠ Something went wrong</div>','.al{font:600 14px Outfit,system-ui;color:#f87171;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.3);border-left:4px solid #f87171;padding:13px 18px;border-radius:10px}',null,"#141021")
+  );
+
+  const CATMETA=[["all","All"],["gradients","Gradients"],["palettes","Palettes"],["buttons","Buttons"],["toggles","Toggles"],["inputs","Inputs"],["badges","Badges"],["progress","Progress"],["alerts","Alerts"],["tooltips","Tooltips"],["avatars","Avatars"],["dividers","Dividers"],["shadows","Shadows"],["loaders","Loaders"],["skeletons","Skeletons"],["textfx","Text FX"],["cards","Cards"],["backgrounds","Backgrounds"],["cursors","Cursors"]];
 
   /* ===================== STATE ===================== */
   let activeCat="all",query="",showKit=false,current=null,curFmt="",previewBg="dark";
@@ -411,6 +519,22 @@
   function downloadKit(){const list=visible();const txt="/* CopyKit — my kit ("+list.length+" pieces) · copykit.vercel.app */\n\n"+list.map(it=>"/* "+it.name+" ("+it.cat+") */\n"+primaryCode(it)).join("\n\n");const blob=new Blob([txt],{type:"text/css"});const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download="copykit.css";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);toast("Downloaded copykit.css ✓");confetti();}
 
   /* ===================== CODE ===================== */
+  function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+  function hl(code){
+    const rx=/(\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(#[0-9a-fA-F]{3,8}\b)|(-?\d*\.?\d+(?:px|em|rem|%|deg|s|ms|vh|vw|fr)?\b)|([a-zA-Z-]+)(?=\s*:)/g;
+    let out="",last=0,m;
+    while((m=rx.exec(code))){
+      out+=esc(code.slice(last,m.index));
+      if(m[1])out+='<span class="t-c">'+esc(m[1])+'</span>';
+      else if(m[2])out+='<span class="t-s">'+esc(m[2])+'</span>';
+      else if(m[3])out+='<span class="t-h"><span class="sw" style="background:'+m[3]+'"></span>'+m[3]+'</span>';
+      else if(m[4])out+='<span class="t-n">'+esc(m[4])+'</span>';
+      else if(m[5])out+='<span class="t-p">'+esc(m[5])+'</span>';
+      last=rx.lastIndex;
+    }
+    out+=esc(code.slice(last));
+    return out;
+  }
   function primaryCode(it){return formatsFor(it)[0][1];}
   function formatsFor(it){
     if(it.type==="gradient")return [["CSS","background: "+it.grad+";"],["Tailwind",'<div class="bg-['+it.grad.replace(/\s+/g,"_")+']"></div>']];
@@ -454,13 +578,16 @@
     }
   }
   function buildFormats(it){const fmts=formatsFor(it),ft=document.getElementById("ftabs");ft.innerHTML="";curFmt=fmts[0][0];fmts.forEach(([name])=>{const b=document.createElement("button");b.className="ftab"+(name===curFmt?" on":"");b.textContent=name;b.addEventListener("click",()=>{curFmt=name;[...ft.children].forEach(c=>c.classList.toggle("on",c.textContent===name));showCode();});ft.appendChild(b);});showCode();}
-  function showCode(){const f=formatsFor(current).find(x=>x[0]===curFmt)||formatsFor(current)[0];document.getElementById("dcode").textContent=f[1];}
+  function showCode(){const f=formatsFor(current).find(x=>x[0]===curFmt)||formatsFor(current)[0];document.getElementById("dcode").innerHTML=hl(f[1]);}
   function syncFavBtn(){const on=favs.has(idOf(current));const b=document.getElementById("favbtn");b.classList.toggle("on",on);b.textContent=on?"♥ Saved to My Kit":"♡ Save to My Kit";}
   document.getElementById("favbtn").addEventListener("click",()=>toggleFav(current));
   function closeDrawer(){scrim.classList.remove("open");drawer.classList.remove("open");if(location.hash)history.replaceState(null,"",location.pathname);}
   document.getElementById("dx").addEventListener("click",closeDrawer);scrim.addEventListener("click",closeDrawer);
   document.getElementById("dshare").addEventListener("click",()=>{copy(location.origin+location.pathname+"#"+slugOf(current),"Share link copied");});
-  document.getElementById("copybtn").addEventListener("click",()=>{const f=formatsFor(current).find(x=>x[0]===curFmt)||formatsFor(current)[0];copy(f[1],"Copied "+curFmt);});
+  function step(dir){const list=(curList&&curList.length&&curList.indexOf(current)>=0)?curList:ITEMS;let i=list.indexOf(current);if(i<0)i=0;openDrawer(list[(i+dir+list.length)%list.length]);}
+  document.getElementById("dprev").addEventListener("click",()=>step(-1));
+  document.getElementById("dnext").addEventListener("click",()=>step(1));
+  document.getElementById("copybtn").addEventListener("click",function(){const f=formatsFor(current).find(x=>x[0]===curFmt)||formatsFor(current)[0];copy(f[1],"Copied "+curFmt);this.textContent="Copied ✓";this.classList.add("ok");clearTimeout(this._t);this._t=setTimeout(()=>{this.textContent="Copy code";this.classList.remove("ok");},1300);});
 
   /* ===================== SEARCH + PALETTE ===================== */
   const searchEl=document.getElementById("search");searchEl.addEventListener("input",()=>{query=searchEl.value;showKit=false;document.getElementById("kitBtn").classList.remove("on");syncDD();render();});
@@ -483,7 +610,28 @@
   function copy(text,label){navigator.clipboard.writeText(text).then(()=>{toast((label||"Copied")+" ✓");confetti();}).catch(()=>toast("Copy failed"));}
   function confetti(n){n=n||18;const cs=["#a855f7","#ec4899","#e9e4f3"];for(let j=0;j<n;j++){const d=document.createElement("div");d.style.cssText="position:fixed;width:8px;height:8px;border-radius:2px;z-index:400;top:-12px;left:"+(Math.random()*100)+"vw;background:"+cs[Math.floor(Math.random()*3)];document.body.appendChild(d);const dur=1700+Math.random()*1400;d.animate([{transform:"translateY(0) rotate(0)"},{transform:"translateY("+(innerHeight+40)+"px) rotate("+(Math.random()*720)+"deg)"}],{duration:dur,easing:"cubic-bezier(.2,.6,.4,1)"});setTimeout(()=>d.remove(),dur);}}
 
-  addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();pal.classList.contains("open")?closePal():openPal();}if(e.key==="Escape")closeDrawer();});
+  addEventListener("keydown",e=>{
+    const typing=/^(input|textarea)$/i.test(e.target.tagName||"");
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==="k"){e.preventDefault();pal.classList.contains("open")?closePal():openPal();return;}
+    if(e.key==="Escape"){closeDrawer();closeHelp();return;}
+    if(typing)return;
+    if(drawer.classList.contains("open")){if(e.key==="ArrowRight")step(1);else if(e.key==="ArrowLeft")step(-1);}
+    if(e.key==="?")toggleHelp();
+    if(e.key==="/"){e.preventDefault();document.getElementById("search").focus();}
+  });
+
+  /* ===================== FOOTER + UTILITIES ===================== */
+  document.querySelectorAll(".fcol a[data-cat]").forEach(a=>a.addEventListener("click",()=>{setCat(a.dataset.cat);const cb=document.querySelector(".catbar");window.scrollTo({top:cb.getBoundingClientRect().top+scrollY-80,behavior:"smooth"});}));
+  document.getElementById("shareX").addEventListener("click",()=>{const t=encodeURIComponent("CopyKit — 250+ live, copy-ready gradients & UI components. Free, no signup."),u=encodeURIComponent("https://copykit.vercel.app/");window.open("https://twitter.com/intent/tweet?text="+t+"&url="+u,"_blank");});
+  document.getElementById("shareCopy").addEventListener("click",()=>copy("https://copykit.vercel.app/","Link copied"));
+  const totop=document.getElementById("totop");
+  addEventListener("scroll",()=>totop.classList.toggle("show",scrollY>600));
+  totop.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+  const help=document.getElementById("help");
+  function toggleHelp(){help.classList.toggle("open");}
+  function closeHelp(){help.classList.remove("open");}
+  document.getElementById("helpx").addEventListener("click",closeHelp);
+  help.addEventListener("click",e=>{if(e.target===help)closeHelp();});
 
   /* ===================== INIT + DEEP LINK ===================== */
   updateKitCount();render();
