@@ -3,6 +3,8 @@
 //   ⌘K search palette · My Kit (save + export) · Live theming.
 ---
 
+<div class="cur" id="cur" aria-hidden="true"></div>
+
 <div class="pal" id="pal" role="dialog" aria-label="Search" aria-modal="true">
   <div class="palbox">
     <input id="palinput" type="text" placeholder="Search pieces by name or category…" autocomplete="off" spellcheck="false" />
@@ -262,7 +264,9 @@
   });
 
   // ---- triggers ----
-  $("searchTrigger")?.addEventListener("click", openSearch);
+  document.querySelectorAll<HTMLElement>("[data-search], #searchTrigger").forEach((el) =>
+    el.addEventListener("click", openSearch)
+  );
   $("kitBtn")?.addEventListener("click", () => { renderKit(); open("kit"); });
   $("themeBtn")?.addEventListener("click", () => { renderThemeList(); open("theme"); });
 
@@ -274,4 +278,20 @@
 
   // ---- init ----
   syncKitUi();
+
+  // ---- custom cursor (additive glow ring; pointer devices only) ----
+  if (window.matchMedia && window.matchMedia("(pointer:fine)").matches) {
+    const cur = $("cur");
+    if (cur) {
+      let x = 0, y = 0, cx = 0, cy = 0;
+      window.addEventListener("mousemove", (e) => { x = e.clientX; y = e.clientY; cur.style.opacity = "1"; });
+      const loop = () => { cx += (x - cx) * 0.2; cy += (y - cy) * 0.2; cur.style.transform = `translate(${cx}px,${cy}px)`; requestAnimationFrame(loop); };
+      loop();
+      window.addEventListener("mouseover", (e) => {
+        const t = e.target as HTMLElement;
+        cur.classList.toggle("big", !!t.closest("a,button,.card,.mchip,.ctile,.heart,.rchip,input"));
+      });
+      document.addEventListener("mouseleave", () => { cur.style.opacity = "0"; });
+    }
+  }
 </script>

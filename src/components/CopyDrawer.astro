@@ -36,7 +36,7 @@
   import type { Item } from "../data/items";
   import { formatsFor, highlight, type Format } from "../lib/codegen";
   import { itemUrl, itemSlugOf } from "../lib/catalog";
-  import { copyText } from "../lib/ui";
+  import { copyText, confetti, trackRecent } from "../lib/ui";
   import { fillPreview } from "../lib/preview";
 
   const bySlug = new Map(items.map((i) => [i.slug, i]));
@@ -94,6 +94,7 @@
     drawer.classList.add("open");
     drawer.setAttribute("aria-hidden", "false");
     history.replaceState(null, "", "#" + itemSlugOf(it));
+    trackRecent(it.slug);
     copybtn.focus();
   }
 
@@ -111,6 +112,7 @@
     copyText(code, `Copied ${label} ✓`);
     copybtn.textContent = "Copied ✓";
     copybtn.classList.add("ok");
+    confetti();
   });
 
   document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
@@ -158,6 +160,13 @@
         openDrawer(it);
       }
     }
+  });
+
+  // Open the drawer from anywhere on the page via a custom event.
+  window.addEventListener("copykit:open", (e) => {
+    const slug = (e as CustomEvent).detail?.slug;
+    const it = slug ? bySlug.get(slug) : undefined;
+    if (it) openDrawer(it);
   });
 
   // Deep link: open the piece named in the URL hash on load.

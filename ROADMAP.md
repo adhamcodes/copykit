@@ -44,12 +44,46 @@
 
 ---
 
-## 🧭 Build order (each step keeps the site shippable)
-- **✅ Batch 1 — Astro foundation.** Static gallery of 114 curated pieces, SEO head, sitemap. *(Done — PR #2, merged.)*
-- **✅ Batch 2 — The Copy Engine.** Click a piece → live preview (dark/light) + framework tabs (CSS/Tailwind/React/Vue) + one-click copy + toast + deep links. *(Done.)*
-- **⏭️ Batch 3 — The SEO Engine.** Per-category and per-item static pages so Google indexes everything; unique, context-specific copy per page (no thin content).
-- **⏭️ Batch 4 — The Moat.** Export-as-image, Theme-the-site, My Kit → Export, Open-in-CodePen, ⌘K search.
-- **⏭️ Batch 5+ — Quantity & new categories.** Stack every shelf to 40–80 distinct pieces; add the new categories above. Layered in throughout.
+## 🧭 Build status
+
+**Foundation (shipped):**
+- ✅ Astro foundation — static gallery, SEO head, sitemap
+- ✅ Copy Engine — drawer, live preview, framework tabs, one-click copy, deep links
+- ✅ SEO Engine — per-category + per-item static pages (414 pages), unique content
+- ✅ The Moat v1 — ⌘K search, live theming, My Kit (save + export)
+- ✅ Quantity — 392 distinct pieces across 21 categories
+
+## 🏛️ Section blueprint (premium roadmap)
+Each section is its own focused, feature-stacked build. Sequenced by impact; site stays launchable at every step.
+
+**Pillar 1 — First impression**
+1. Homepage (launchpad: hero search, alive marquee, bento category grid, piece-of-the-day, recently-viewed, surprise, scroll-reveal, custom cursor, confetti)
+2. Header / navigation (grouped "Browse ▾" dropdown, mobile nav)
+3. Footer (modern, de-crowded, grouped columns)
+
+**Pillar 2 — Core experience**
+4. The Code Studio (drawer upgrade: live color toolbox, tweak sliders, framework + color-format toggles, save edited version to Kit, open in CodePen/StackBlitz)
+5. Search (fuzzy, recent searches, category jumps)
+6. My Kit page (`/kit` — manage, export, share collection)
+
+**Pillar 3 — Power tools**
+7. Export as image (PNG/SVG — reliable subset first)
+8. Playground / Remix (combine pieces, resize, device preview)
+9. Color tools (image→palette extractor, WCAG contrast checker, format converter)
+
+**Pillar 4 — Depth & polish**
+10. Item pages (usage tips, variations, open-in-playground)
+11. Category pages (filters, sort, richer copy)
+12. Theming (full light mode, more presets, custom accent picker)
+13. Performance & accessibility (lazy-load, Lighthouse ~100, keyboard + screen-reader)
+
+**Pillar 5 — Growth & launch**
+14. SEO content depth (per-page guides, FAQ schema, auto OG images)
+15. PWA / offline (installable, works offline)
+16. Community submissions (via GitHub PRs — grows with zero backend) ⚠️
+17. Share & analytics (privacy-friendly, "tweet this piece")
+18. Launch prep (domain, Search Console, robots, sitemap submission)
+19. Monetization (ethical ads / sponsorship / Pro tier) ⚠️ client-side limits apply
 
 ---
 

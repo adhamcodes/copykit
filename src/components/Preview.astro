@@ -1,0 +1,40 @@
+---
+import type { Item } from "../data/items";
+import { frameDoc } from "../lib/codegen";
+
+export interface Props {
+  item: Item;
+  lazy?: boolean;
+  bg?: string;
+}
+const { item, lazy = true, bg = "#141021" } = Astro.props;
+---
+
+{item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
+
+{item.type === "palette" && (
+  <div class="pvpal">
+    {item.cols.map((c) => (
+      <div style={`background:${c}`}></div>
+    ))}
+  </div>
+)}
+
+{item.type === "shadow" && (
+  <div class="pvshadow">
+    <div
+      class="pvcard"
+      style={`box-shadow:${item.x}px ${item.y}px ${item.blur}px ${item.spread}px ${item.color}`}
+    >
+    </div>
+  </div>
+)}
+
+{item.type === "comp" && (
+  <iframe
+    class="pvframe"
+    loading={lazy ? "lazy" : undefined}
+    sandbox="allow-scripts"
+    title={`${item.name} preview`}
+    srcdoc={frameDoc(item, bg)}></iframe>
+)}

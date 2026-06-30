@@ -1,0 +1,23 @@
+---
+import type { CatMeta } from "../lib/catalog";
+import { catUrl } from "../lib/catalog";
+import type { Item } from "../data/items";
+import Preview from "./Preview.astro";
+
+export interface Props {
+  meta: CatMeta;
+  rep: Item;
+  count: number;
+}
+const { meta, rep, count } = Astro.props;
+---
+
+<a class={`ctile reveal ${rep.cat}`} href={catUrl(meta.key)} aria-label={`${meta.label} — ${count} pieces`}>
+  <div class="ctile-pv">
+    <Preview item={rep} />
+  </div>
+  <div class="ctile-foot">
+    <span class="ctile-name">{meta.label}</span>
+    <span class="ctile-count">{count}</span>
+  </div>
+</a>

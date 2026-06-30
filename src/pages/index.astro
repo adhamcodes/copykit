@@ -1,18 +1,43 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Card from "../components/Card.astro";
-import CopyDrawer from "../components/CopyDrawer.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
+import Card from "../components/Card.astro";
+import CategoryTile from "../components/CategoryTile.astro";
+import CopyDrawer from "../components/CopyDrawer.astro";
 import { items } from "../data/items";
-import { activeCats, catUrl, itemsByCat } from "../lib/catalog";
+import { activeCats, itemsByCat } from "../lib/catalog";
 
-const grouped = activeCats().map((c) => ({ ...c, items: itemsByCat(c.key) }));
+const gradients = items.filter((i) => i.type === "gradient");
+const palettesL = items.filter((i) => i.type === "palette");
+const shadowsL = items.filter((i) => i.type === "shadow");
+const comps = items.filter((i) => i.type === "comp");
+
+// Marquee row A — cheap, smooth color chips
+const marqueeColor = [
+  ...gradients.slice(0, 12),
+  ...palettesL.slice(0, 6),
+  ...shadowsL.slice(0, 4),
+];
+// Marquee row B — a few live components ("moving styles")
+const marqueeComp = ["buttons", "loaders", "textfx", "toggles", "badges", "glass", "threed", "cards"]
+  .map((c) => comps.find((i) => i.cat === c))
+  .filter((x): x is NonNullable<typeof x> => Boolean(x));
+
+// Fresh picks — one standout per a spread of categories
+const freshPicks = ["buttons", "cards", "loaders", "textfx", "gradients", "glass", "progress", "badges"]
+  .map((c) => items.find((i) => i.cat === c))
+  .filter((x): x is NonNullable<typeof x> => Boolean(x));
+
+// Bento category grid — representative piece per category
+const cats = activeCats().map((meta) => {
+  const list = itemsByCat(meta.key);
+  return { meta, rep: list[0], count: list.length };
+});
+const bigCats = new Set(["gradients", "buttons", "glass", "cards"]);
 
 const total = items.length;
-const gradientCount = items.filter((i) => i.type === "gradient").length;
-const paletteCount = items.filter((i) => i.type === "palette").length;
-const componentCount = items.filter((i) => i.type === "comp").length;
+const catCount = cats.length;
 ---
 
 <Layout>
@@ -23,51 +48,184 @@ const componentCount = items.filter((i) => i.type === "comp").length;
       <span class="kicker"><span class="dot"></span> Free · No signup · Runs in your browser</span>
       <h1>Frontend magic,<br /><span class="g">ready to copy</span></h1>
       <p>
-        A living library of gradients, palettes, shadows and UI components.
-        Browse, preview live, and copy the code — built for developers,
-        designers and motion artists.
-      </p>
-      <p class="builtfor">
-        For <span>developers</span> · <span>designers</span> · <span>motion artists</span>
+        A living library for <span class="rot" id="rotniche">developers</span> —
+        browse, preview live, and copy the code in your framework.
       </p>
 
+      <button class="herosearch js-search" type="button" data-search aria-label="Search pieces (⌘K)">
+        <span class="mono" aria-hidden="true">⌕</span>
+        <span>Search {total} pieces — gradients, buttons, shadows…</span>
+        <span class="k">⌘K</span>
+      </button>
+
       <div class="stats">
-        <div class="stat-chip"><div class="num">{total}</div><div class="lbl">Pieces</div></div>
-        <div class="stat-chip"><div class="num">{gradientCount}</div><div class="lbl">Gradients</div></div>
-        <div class="stat-chip"><div class="num">{paletteCount}</div><div class="lbl">Palettes</div></div>
-        <div class="stat-chip"><div class="num">{componentCount}</div><div class="lbl">Components</div></div>
+        <div class="stat-chip"><div class="num" data-count={total}>{total}</div><div class="lbl">Pieces</div></div>
+        <div class="stat-chip"><div class="num" data-count={catCount}>{catCount}</div><div class="lbl">Categories</div></div>
+        <div class="stat-chip"><div class="num">100%</div><div class="lbl">Free forever</div></div>
       </div>
     </section>
 
-    <nav class="catbar" aria-label="Categories">
-      {grouped.map((g) => (
-        <a class="catlink" href={catUrl(g.key)}>
-          {g.label}<span class="cn">{g.items.length}</span>
-        </a>
-      ))}
-    </nav>
+    <!-- alive marquee -->
+    <section class="marquee" aria-hidden="true">
+      <div class="mrow">
+        {[...marqueeColor, ...marqueeColor].map((it) => (
+          <button class="mchip" data-slug={it.slug} title={it.name}>
+            {it.type === "gradient" && <span class="mchip-fill" style={`background:${it.grad}`}></span>}
+            {it.type === "palette" && (
+              <span class="mchip-fill" style={`background:linear-gradient(90deg,${it.cols.join(",")})`}></span>
+            )}
+            {it.type === "shadow" && (
+              <span class="mchip-fill mchip-sh"><span style={`box-shadow:${it.x}px ${it.y}px ${it.blur}px ${it.spread}px ${it.color}`}></span></span>
+            )}
+            <span class="mchip-nm">{it.name}</span>
+          </button>
+        ))}
+      </div>
+      <div class="mrow rev">
+        {[...marqueeComp, ...marqueeComp].map((it) => (
+          <button class="mchip mchip-comp" data-slug={it.slug} title={it.name}>
+            <iframe class="pvframe" loading="lazy" sandbox="allow-scripts" title={`${it.name} preview`} srcdoc={`<!doctype html><html><head><meta charset=utf-8><style>html,body{height:100%;margin:0}body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:${it.type === "comp" && it.bg ? it.bg : "#141021"}}${it.type === "comp" ? it.css : ""}</style></head><body>${it.type === "comp" ? it.html : ""}${it.type === "comp" && it.js ? `<scr${""}ipt>${it.js}</scr${""}ipt>` : ""}</body></html>`}></iframe>
+            <span class="mchip-nm">{it.name}</span>
+          </button>
+        ))}
+      </div>
+    </section>
 
-    {grouped.map((g) => (
-      <section id={g.key}>
-        <div class="section-head">
-          <h2><a href={catUrl(g.key)}>{g.label}</a></h2>
-          <span class="meta"><a href={catUrl(g.key)}>{g.items.length} pieces →</a></span>
-        </div>
-        <div class="grid">
-          {g.items.slice(0, 12).map((it) => (
-            <Card item={it} />
-          ))}
-        </div>
-        {g.items.length > 12 && (
-          <div class="more-row">
-            <a class="more-link" href={catUrl(g.key)}>See all {g.items.length} {g.label.toLowerCase()} →</a>
+    <!-- piece of the day + recently viewed -->
+    <section class="spotlight">
+      <div class="potd">
+        <div class="potd-tag">✦ Piece of the day</div>
+        <div class="potd-card" id="potd">
+          <div class="potd-pv" id="potd-pv"></div>
+          <div class="potd-meta">
+            <div class="potd-name" id="potd-name">—</div>
+            <div class="potd-cat" id="potd-cat"></div>
+            <button class="minibtn" id="potd-open" type="button">View &amp; copy →</button>
           </div>
-        )}
-      </section>
-    ))}
+        </div>
+      </div>
+      <div class="recent" id="recent" hidden>
+        <div class="recent-tag">⟲ Jump back in</div>
+        <div class="recent-row" id="recent-row"></div>
+      </div>
+    </section>
+
+    <!-- fresh picks -->
+    <section>
+      <div class="section-head">
+        <h2>Fresh picks</h2>
+        <span class="meta"><button class="surprise-btn" id="surprise" type="button">🎲 Surprise me</button></span>
+      </div>
+      <div class="grid">
+        {freshPicks.map((it) => (
+          <Card item={it} />
+        ))}
+      </div>
+    </section>
+
+    <!-- bento category grid -->
+    <section>
+      <div class="section-head">
+        <h2>Browse {catCount} categories</h2>
+        <span class="meta">{total} copy-ready pieces</span>
+      </div>
+      <div class="bento">
+        {cats.map((c) => (
+          <div class={bigCats.has(c.meta.key) ? "bento-cell big" : "bento-cell"}>
+            <CategoryTile meta={c.meta} rep={c.rep} count={c.count} />
+          </div>
+        ))}
+      </div>
+    </section>
   </main>
 
   <Footer />
-
   <CopyDrawer />
 </Layout>
+
+<script>
+  import { items } from "../data/items";
+  import { itemUrl } from "../lib/catalog";
+  import { fillPreview } from "../lib/preview";
+
+  const bySlug = new Map(items.map((i) => [i.slug, i]));
+  const openPiece = (slug: string) =>
+    window.dispatchEvent(new CustomEvent("copykit:open", { detail: { slug } }));
+
+  // marquee chips -> open drawer
+  document.querySelectorAll<HTMLElement>(".mchip").forEach((el) =>
+    el.addEventListener("click", () => el.dataset.slug && openPiece(el.dataset.slug))
+  );
+
+  // rotating audience line
+  const niches = ["developers", "designers", "motion artists", "video editors", "indie hackers", "creative coders"];
+  const rot = document.getElementById("rotniche");
+  let ri = 0;
+  if (rot) setInterval(() => {
+    ri = (ri + 1) % niches.length;
+    rot.style.opacity = "0";
+    setTimeout(() => { rot.textContent = niches[ri]; rot.style.opacity = "1"; }, 250);
+  }, 2300);
+
+  // count-up stats
+  document.querySelectorAll<HTMLElement>(".num[data-count]").forEach((el) => {
+    const to = parseInt(el.dataset.count || "0", 10);
+    if (!to) return;
+    let n = 0;
+    const step = Math.max(1, Math.ceil(to / 40));
+    const tick = () => { n += step; if (n >= to) { el.textContent = String(to); return; } el.textContent = String(n); requestAnimationFrame(tick); };
+    tick();
+  });
+
+  // piece of the day (deterministic by date, computed client-side)
+  const day = Math.floor(Date.now() / 86400000);
+  const potd = items[day % items.length];
+  if (potd) {
+    const pv = document.getElementById("potd-pv");
+    if (pv) fillPreview(pv, potd, "dark");
+    const nm = document.getElementById("potd-name");
+    if (nm) nm.textContent = potd.name;
+    const ct = document.getElementById("potd-cat");
+    if (ct) ct.textContent = potd.cat;
+    document.getElementById("potd-open")?.addEventListener("click", () => openPiece(potd.slug));
+  }
+
+  // recently viewed
+  let recent: string[] = [];
+  try { recent = JSON.parse(localStorage.getItem("ck_recent") || "[]"); } catch {}
+  const recentItems = recent.map((s) => bySlug.get(s)).filter(Boolean).slice(0, 8) as typeof items;
+  if (recentItems.length) {
+    const wrap = document.getElementById("recent");
+    const row = document.getElementById("recent-row");
+    if (wrap && row) {
+      wrap.hidden = false;
+      recentItems.forEach((it) => {
+        const b = document.createElement("button");
+        b.className = "rchip";
+        b.title = it.name;
+        const pv = document.createElement("div");
+        pv.className = "rchip-pv";
+        fillPreview(pv, it, "dark");
+        const nm = document.createElement("span");
+        nm.className = "rchip-nm";
+        nm.textContent = it.name;
+        b.append(pv, nm);
+        b.addEventListener("click", () => openPiece(it.slug));
+        row.appendChild(b);
+      });
+    }
+  }
+
+  // surprise me
+  document.getElementById("surprise")?.addEventListener("click", () => {
+    const it = items[Math.floor(Math.random() * items.length)];
+    openPiece(it.slug);
+  });
+
+  // scroll reveal
+  document.documentElement.classList.add("reveal-ready");
+  const io = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { rootMargin: "80px" });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+</script>
