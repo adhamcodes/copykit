@@ -75,3 +75,28 @@ export function itemsByCat(key: string): Item[] {
 export function relatedItems(it: Item, n = 6): Item[] {
   return items.filter((i) => i.cat === it.cat && i.slug !== it.slug).slice(0, n);
 }
+
+/** High-level groupings used by the header "Browse" dropdown + the footer. */
+export interface CatGroup {
+  label: string;
+  keys: string[];
+}
+export const CAT_GROUPS: CatGroup[] = [
+  { label: "Color", keys: ["gradients", "palettes", "shadows"] },
+  {
+    label: "Components",
+    keys: ["buttons", "cards", "loaders", "inputs", "toggles", "badges", "progress", "alerts", "tooltips", "avatars", "dividers", "skeletons"],
+  },
+  { label: "Effects", keys: ["backgrounds", "animated", "glass", "threed", "textfx", "cursors"] },
+];
+
+/** Groups with their active categories + counts, ready to render. */
+export function groupedCats(): { label: string; cats: { meta: CatMeta; count: number }[] }[] {
+  return CAT_GROUPS.map((g) => ({
+    label: g.label,
+    cats: g.keys
+      .map((k) => catMeta(k))
+      .filter((m): m is CatMeta => !!m && items.some((i) => i.cat === m.key))
+      .map((m) => ({ meta: m, count: items.filter((i) => i.cat === m.key).length })),
+  })).filter((g) => g.cats.length > 0);
+}

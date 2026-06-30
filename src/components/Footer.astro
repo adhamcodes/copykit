@@ -1,7 +1,7 @@
 ---
-import { activeCats, catUrl } from "../lib/catalog";
+import { groupedCats, catUrl } from "../lib/catalog";
 const GITHUB_URL = "https://github.com/adhamcodes/copykit";
-const cats = activeCats();
+const groups = groupedCats();
 ---
 
 <footer>
@@ -15,23 +15,20 @@ const cats = activeCats();
         </p>
         <div class="fsocial">
           <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
+          <button class="fsocial-btn" type="button" data-shortcuts>⌨ Shortcuts</button>
         </div>
       </div>
-      <div class="fcol">
-        <h4>Browse</h4>
-        {cats.slice(0, 6).map((g) => <a href={catUrl(g.key)}>{g.label}</a>)}
-      </div>
-      <div class="fcol">
-        <h4>More</h4>
-        {cats.slice(6).map((g) => <a href={catUrl(g.key)}>{g.label}</a>)}
-      </div>
-      <div class="fcol">
-        <h4>Project</h4>
-        <a href={GITHUB_URL} target="_blank" rel="noopener">Source code</a>
-      </div>
+      {groups.map((g) => (
+        <div class="fcol">
+          <h4>{g.label}</h4>
+          {g.cats.map((c) => (
+            <a href={catUrl(c.meta.key)}>{c.meta.label}</a>
+          ))}
+        </div>
+      ))}
     </div>
     <div class="fbot">
-      Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a>
+      Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a> · press <kbd>?</kbd> for shortcuts
     </div>
   </div>
 </footer>
