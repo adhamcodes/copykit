@@ -1,11 +1,10 @@
 ---
-// Shared copy drawer + toast. Include once per page. The gallery cards are
-// real <a> links to item pages; this script upgrades a click into the drawer
-// (so the site works without JS, and crawlers still follow the links).
+// The Code Studio: live preview + recolor toolbox + tweak sliders +
+// HEX/RGB/HSL toggle + framework tabs + copy + save-edited-to-Kit + CodePen.
 ---
 
 <div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Code viewer">
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Code studio">
   <div class="dh">
     <div>
       <h3 id="dname">—</h3>
@@ -16,6 +15,7 @@
       <button id="dclose" aria-label="Close">✕</button>
     </div>
   </div>
+
   <div class="dbody">
     <div class="dpv-wrap">
       <div class="pvtoggle" role="group" aria-label="Preview background">
@@ -24,9 +24,30 @@
       </div>
       <div id="dpv"></div>
     </div>
+
+    <!-- Studio: recolor + tweak -->
+    <div class="studio" id="studio">
+      <div class="studio-head">
+        <span>Customize</span>
+        <div class="fmt-toggle" id="fmtToggle" role="group" aria-label="Color format">
+          <button data-fmt="hex" class="on">HEX</button>
+          <button data-fmt="rgb">RGB</button>
+          <button data-fmt="hsl">HSL</button>
+        </div>
+      </div>
+      <div class="studio-colors" id="studioColors"></div>
+      <div class="studio-sliders" id="studioSliders"></div>
+      <div class="studio-actions">
+        <button class="minibtn" id="randomize" type="button">🎲 Randomize</button>
+        <button class="minibtn ghost" id="resetEdits" type="button">Reset</button>
+      </div>
+    </div>
+
     <div class="ftabs" id="ftabs" role="tablist"></div>
     <div class="codebox"><pre id="codeblock"></pre></div>
     <button class="copybtn" id="copybtn">Copy code</button>
+    <button class="favbtn" id="saveKit" type="button">♥ Save to My Kit</button>
+    <button class="favbtn codepen-btn" id="openCodepen" type="button">Open in CodePen ↗</button>
   </div>
 </aside>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -38,6 +59,10 @@
   import { itemUrl, itemSlugOf } from "../lib/catalog";
   import { copyText, confetti, trackRecent } from "../lib/ui";
   import { fillPreview } from "../lib/preview";
+  import {
+    parseColor, formatColor, toColorInput, applyColors, uniqueColors, randomColor,
+    type RGBA, type ColorFormat,
+  } from "../lib/colors";
 
   const bySlug = new Map(items.map((i) => [i.slug, i]));
 
@@ -49,25 +74,83 @@
   const codeblock = $("codeblock");
   const copybtn = $("copybtn") as HTMLButtonElement;
   const dpage = $("dpage") as HTMLAnchorElement;
+  const studio = $("studio");
+  const studioColors = $("studioColors");
+  const studioSliders = $("studioSliders");
+
+  type Swatch = { orig: string; cur: RGBA; changed: boolean };
 
   let current: Item | null = null;
   let formats: Format[] = [];
   let activeFmt = 0;
   let previewBg: "dark" | "light" = "dark";
+  let fmt: ColorFormat = "hex";
+  let fmtTouched = false;
+  let swatches: Swatch[] = [];
+  let angle: number | null = null;
+  let angleTouched = false;
+  let shadow = { x: 0, y: 0, blur: 0, spread: 0 };
+  let shadowTouched = false;
+
+  const isEdited = () =>
+    swatches.some((s) => s.changed) || angleTouched || shadowTouched || fmtTouched;
+
+  function colorVals() {
+    return swatches.map((s) => {
+      if (fmtTouched) return { orig: s.orig, val: formatColor(s.cur, fmt) };
+      if (s.changed) return { orig: s.orig, val: formatColor(s.cur, "hex") };
+      return { orig: s.orig, val: s.orig };
+    });
+  }
+
+  /** The item with the user's live edits applied. */
+  function editedItem(): Item {
+    const it = current!;
+    const vals = colorVals();
+    if (it.type === "gradient") {
+      let grad = applyColors(it.grad, vals);
+      if (angle !== null) grad = grad.replace(/-?\d+deg/, angle + "deg");
+      return { ...it, grad };
+    }
+    if (it.type === "palette") {
+      const cols = swatches.map((s) =>
+        fmtTouched ? formatColor(s.cur, fmt) : s.changed ? formatColor(s.cur, "hex") : s.orig
+      );
+      return { ...it, cols };
+    }
+    if (it.type === "shadow") {
+      const color = vals[0] ? vals[0].val : it.color;
+      return { ...it, x: shadow.x, y: shadow.y, blur: shadow.blur, spread: shadow.spread, color };
+    }
+    return {
+      ...it,
+      css: applyColors(it.css, vals),
+      html: applyColors(it.html, vals),
+      js: it.js ? applyColors(it.js, vals) : it.js,
+    };
+  }
 
   function showCode(i: number) {
     activeFmt = i;
-    const [, code] = formats[i];
-    codeblock.innerHTML = highlight(code);
+    codeblock.innerHTML = highlight(formats[i] ? formats[i][1] : "");
     [...ftabs.children].forEach((b, idx) => b.classList.toggle("on", idx === i));
     copybtn.textContent = "Copy code";
     copybtn.classList.remove("ok");
   }
 
+  /** Recompute formats + preview from the edited item (keeps active tab). */
+  function refresh() {
+    const ei = editedItem();
+    formats = formatsFor(ei);
+    if (activeFmt >= formats.length) activeFmt = 0;
+    showCode(activeFmt);
+    fillPreview(dpv, ei, previewBg);
+  }
+
   function buildTabs(it: Item) {
-    formats = formatsFor(it);
+    const labels = formatsFor(it).map((f) => f[0]);
     ftabs.innerHTML = "";
-    formats.forEach(([label], i) => {
+    labels.forEach((label, i) => {
       const b = document.createElement("button");
       b.className = "ftab" + (i === 0 ? " on" : "");
       b.textContent = label;
@@ -75,12 +158,96 @@
       b.addEventListener("click", () => showCode(i));
       ftabs.appendChild(b);
     });
-    showCode(0);
+    activeFmt = 0;
+  }
+
+  function buildStudio(it: Item) {
+    // ---- colors ----
+    let sources: string[] = [];
+    if (it.type === "gradient") sources = [it.grad];
+    else if (it.type === "palette") sources = it.cols;
+    else if (it.type === "shadow") sources = [it.color];
+    else sources = [it.css, it.html, it.js || ""];
+
+    const tokens = it.type === "palette" ? it.cols : uniqueColors(sources);
+    swatches = tokens
+      .map((t) => ({ orig: t, cur: parseColor(t), changed: false }))
+      .filter((s): s is Swatch => s.cur !== null)
+      .slice(0, 10);
+
+    studioColors.innerHTML = "";
+    swatches.forEach((s, i) => {
+      const input = document.createElement("input");
+      input.type = "color";
+      input.className = "cswatch";
+      input.value = toColorInput(s.cur);
+      input.title = "Change color";
+      input.addEventListener("input", () => {
+        const p = parseColor(input.value);
+        if (p) {
+          s.cur = { r: p.r, g: p.g, b: p.b, a: s.cur.a };
+          s.changed = true;
+          refresh();
+        }
+      });
+      studioColors.appendChild(input);
+    });
+
+    // ---- type-specific sliders ----
+    studioSliders.innerHTML = "";
+    angle = null;
+    angleTouched = false;
+    shadowTouched = false;
+
+    if (it.type === "gradient") {
+      const m = it.grad.match(/(-?\d+)deg/);
+      if (m) {
+        angle = parseInt(m[1], 10);
+        addSlider("Angle", angle, 0, 360, 1, (v) => { angle = v; angleTouched = true; refresh(); }, "°");
+      }
+    } else if (it.type === "shadow") {
+      shadow = { x: it.x, y: it.y, blur: it.blur, spread: it.spread };
+      addSlider("X", shadow.x, -50, 50, 1, (v) => { shadow.x = v; shadowTouched = true; refresh(); }, "px");
+      addSlider("Y", shadow.y, -50, 50, 1, (v) => { shadow.y = v; shadowTouched = true; refresh(); }, "px");
+      addSlider("Blur", shadow.blur, 0, 100, 1, (v) => { shadow.blur = v; shadowTouched = true; refresh(); }, "px");
+      addSlider("Spread", shadow.spread, -25, 50, 1, (v) => { shadow.spread = v; shadowTouched = true; refresh(); }, "px");
+    }
+
+    studio.style.display = swatches.length || studioSliders.children.length ? "block" : "none";
+  }
+
+  function addSlider(
+    label: string, value: number, min: number, max: number, step: number,
+    onInput: (v: number) => void, unit: string
+  ) {
+    const row = document.createElement("label");
+    row.className = "slider-row";
+    const head = document.createElement("span");
+    head.className = "slider-label";
+    const val = document.createElement("b");
+    val.textContent = value + unit;
+    head.textContent = label;
+    head.appendChild(val);
+    const range = document.createElement("input");
+    range.type = "range";
+    range.min = String(min);
+    range.max = String(max);
+    range.step = String(step);
+    range.value = String(value);
+    range.addEventListener("input", () => {
+      const v = parseInt(range.value, 10);
+      val.textContent = v + unit;
+      onInput(v);
+    });
+    row.append(head, range);
+    studioSliders.appendChild(row);
   }
 
   function openDrawer(it: Item) {
     current = it;
     previewBg = "dark";
+    fmt = "hex";
+    fmtTouched = false;
     $("dname").textContent = it.name;
     $("dcat").textContent = it.cat;
     dpage.href = itemUrl(it);
@@ -88,8 +255,12 @@
     document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
       b.classList.toggle("on", b.dataset.bg === "dark")
     );
-    fillPreview(dpv, it, "dark");
+    document.querySelectorAll<HTMLElement>("#fmtToggle button").forEach((b) =>
+      b.classList.toggle("on", b.dataset.fmt === "hex")
+    );
+    buildStudio(it);
     buildTabs(it);
+    refresh();
     scrim.classList.add("open");
     drawer.classList.add("open");
     drawer.setAttribute("aria-hidden", "false");
@@ -106,6 +277,38 @@
     history.replaceState(null, "", location.pathname + location.search);
   }
 
+  // ---- format toggle ----
+  document.querySelectorAll<HTMLElement>("#fmtToggle button").forEach((b) =>
+    b.addEventListener("click", () => {
+      fmt = (b.dataset.fmt as ColorFormat) || "hex";
+      fmtTouched = true;
+      document.querySelectorAll("#fmtToggle button").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      refresh();
+    })
+  );
+
+  // ---- randomize / reset ----
+  $("randomize").addEventListener("click", () => {
+    swatches.forEach((s) => { s.cur = randomColor(); s.changed = true; });
+    studioColors.querySelectorAll<HTMLInputElement>(".cswatch").forEach((inp, i) => {
+      if (swatches[i]) inp.value = toColorInput(swatches[i].cur);
+    });
+    confetti();
+    refresh();
+  });
+  $("resetEdits").addEventListener("click", () => {
+    if (current) {
+      fmt = "hex"; fmtTouched = false;
+      document.querySelectorAll("#fmtToggle button").forEach((x) =>
+        x.classList.toggle("on", (x as HTMLElement).dataset.fmt === "hex")
+      );
+      buildStudio(current);
+      refresh();
+    }
+  });
+
+  // ---- copy ----
   copybtn.addEventListener("click", () => {
     if (!current) return;
     const [label, code] = formats[activeFmt];
@@ -115,13 +318,71 @@
     confetti();
   });
 
+  // ---- save (edited) to My Kit ----
+  $("saveKit").addEventListener("click", () => {
+    if (!current) return;
+    let kit: string[] = [];
+    try { kit = JSON.parse(localStorage.getItem("ck_kit") || "[]"); } catch {}
+    if (isEdited()) {
+      const ei = editedItem() as any;
+      const cslug = current.slug + "-edit-" + Math.random().toString(36).slice(2, 6);
+      const custom = { ...ei, slug: cslug, name: current.name + " (edited)" };
+      let customs: any[] = [];
+      try { customs = JSON.parse(localStorage.getItem("ck_customs") || "[]"); } catch {}
+      customs.push(custom);
+      localStorage.setItem("ck_customs", JSON.stringify(customs));
+      if (!kit.includes(cslug)) kit.push(cslug);
+      localStorage.setItem("ck_kit", JSON.stringify(kit));
+      window.dispatchEvent(new CustomEvent("copykit:kit-changed"));
+      confetti();
+      showToastSafe("Saved your edited version ♥");
+    } else {
+      if (!kit.includes(current.slug)) kit.push(current.slug);
+      localStorage.setItem("ck_kit", JSON.stringify(kit));
+      window.dispatchEvent(new CustomEvent("copykit:kit-changed"));
+      showToastSafe("Saved to My Kit ♥");
+    }
+  });
+  function showToastSafe(msg: string) {
+    const t = document.getElementById("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    window.setTimeout(() => t.classList.remove("show"), 1800);
+  }
+
+  // ---- open in CodePen ----
+  $("openCodepen").addEventListener("click", () => {
+    if (!current) return;
+    const ei = editedItem();
+    let html = "", css = "", js = "";
+    if (ei.type === "comp") { html = ei.html || ""; css = ei.css || ""; js = ei.js || ""; }
+    else if (ei.type === "gradient") { html = '<div class="box"></div>'; css = `body{margin:0}.box{width:100%;height:100vh;background:${ei.grad}}`; }
+    else if (ei.type === "shadow") { html = '<div class="box"></div>'; css = `body{margin:0;min-height:100vh;display:grid;place-items:center;background:#141021}.box{width:130px;height:130px;border-radius:18px;background:#2a2440;box-shadow:${ei.x}px ${ei.y}px ${ei.blur}px ${ei.spread}px ${ei.color}}`; }
+    else if (ei.type === "palette") { html = ei.cols.map((c) => `<div style="background:${c}"></div>`).join(""); css = "body{margin:0;display:flex;height:100vh}div{flex:1}"; }
+    const data = { title: `${current.name} — CopyKit`, html, css, js, editors: "111" };
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = "https://codepen.io/pen/define";
+    form.target = "_blank";
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "data";
+    input.value = JSON.stringify(data);
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    form.remove();
+  });
+
+  // ---- preview bg toggle ----
   document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
     b.addEventListener("click", () => {
       if (!current) return;
       previewBg = (b.dataset.bg as "dark" | "light") || "dark";
       document.querySelectorAll(".pvtoggle button").forEach((x) => x.classList.remove("on"));
       b.classList.add("on");
-      fillPreview(dpv, current, previewBg);
+      fillPreview(dpv, editedItem(), previewBg);
     })
   );
 
@@ -131,50 +392,37 @@
     if (e.key === "Escape" && current) closeDrawer();
   });
 
-  // Intercept card link clicks -> open drawer instead of navigating.
-  // (ctrl/cmd/middle-click still opens the item page in a new tab.)
+  // open from a card click (ctrl/cmd-click opens the item page)
   document.addEventListener("click", (e) => {
     const me = e as MouseEvent;
     if (me.metaKey || me.ctrlKey || me.shiftKey || me.button === 1) return;
     const target = e.target as HTMLElement;
-    if (target.closest(".heart")) return; // saving to kit, not opening
+    if (target.closest(".heart")) return;
     const card = target.closest<HTMLElement>(".card");
     if (!card) return;
     const slug = card.dataset.slug;
     const it = slug ? bySlug.get(slug) : undefined;
-    if (it) {
-      e.preventDefault();
-      openDrawer(it);
-    }
+    if (it) { e.preventDefault(); openDrawer(it); }
   });
 
-  // Keyboard: Enter/Space on a focused card opens the drawer.
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Enter" && e.key !== " ") return;
     const el = document.activeElement as HTMLElement | null;
     if (el && el.classList.contains("card")) {
       const slug = el.dataset.slug;
       const it = slug ? bySlug.get(slug) : undefined;
-      if (it) {
-        e.preventDefault();
-        openDrawer(it);
-      }
+      if (it) { e.preventDefault(); openDrawer(it); }
     }
   });
 
-  // Open the drawer from anywhere on the page via a custom event.
   window.addEventListener("copykit:open", (e) => {
     const slug = (e as CustomEvent).detail?.slug;
     const it = slug ? bySlug.get(slug) : undefined;
     if (it) openDrawer(it);
   });
 
-  // Deep link: open the piece named in the URL hash on load.
   const initial = location.hash.slice(1);
   for (const it of items) {
-    if (itemSlugOf(it) === initial) {
-      openDrawer(it);
-      break;
-    }
+    if (itemSlugOf(it) === initial) { openDrawer(it); break; }
   }
 </script>

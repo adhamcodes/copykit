@@ -57,7 +57,8 @@
   import { items } from "../data/items";
   import type { Item } from "../data/items";
   import { itemUrl } from "../lib/catalog";
-  import { showToast, confetti } from "../lib/ui";
+  import { primaryCode } from "../lib/codegen";
+  import { showToast, confetti, copyText } from "../lib/ui";
   import { kitCss, kitJson } from "../lib/exporters";
   import { pickAccents, DEFAULT_ACCENTS } from "../lib/theme";
 
@@ -95,23 +96,30 @@
   // My Kit (localStorage)
   // ============================================================
   const KIT_KEY = "ck_kit";
-  let kit = new Set<string>();
-  try {
-    kit = new Set(JSON.parse(localStorage.getItem(KIT_KEY) || "[]"));
-  } catch { /* ignore */ }
+  const CUSTOM_KEY = "ck_customs";
+  let kit: string[] = [];
+  let customs: any[] = [];
+  function loadKit() {
+    try { kit = JSON.parse(localStorage.getItem(KIT_KEY) || "[]"); } catch { kit = []; }
+    try { customs = JSON.parse(localStorage.getItem(CUSTOM_KEY) || "[]"); } catch { customs = []; }
+  }
+  loadKit();
+  const resolve = (slug: string): Item | undefined =>
+    bySlug.get(slug) || (customs.find((c) => c.slug === slug) as Item | undefined);
+  const kitItems = (): Item[] => kit.map(resolve).filter(Boolean) as Item[];
 
-  function saveKit() {
-    localStorage.setItem(KIT_KEY, JSON.stringify([...kit]));
+  function persistKit() {
+    localStorage.setItem(KIT_KEY, JSON.stringify(kit));
     syncKitUi();
   }
   function syncKitUi() {
-    const n = kit.size;
+    const n = kit.length;
     const c = $("kitCount");
     if (c) c.textContent = String(n);
     const cb = $("kitCountBig");
     if (cb) cb.textContent = String(n);
     document.querySelectorAll<HTMLElement>(".heart").forEach((h) => {
-      const on = !!h.dataset.slug && kit.has(h.dataset.slug);
+      const on = !!h.dataset.slug && kit.includes(h.dataset.slug);
       h.classList.toggle("on", on);
       h.textContent = on ? "♥" : "♡";
     });
@@ -124,34 +132,35 @@
     e.preventDefault();
     e.stopPropagation();
     const slug = h.dataset.slug;
-    if (kit.has(slug)) {
-      kit.delete(slug);
-      showToast("Removed from My Kit");
-    } else {
-      kit.add(slug);
-      showToast("Saved to My Kit ♥");
-    }
-    saveKit();
+    const i = kit.indexOf(slug);
+    if (i >= 0) { kit.splice(i, 1); showToast("Removed from My Kit"); }
+    else { kit.push(slug); showToast("Saved to My Kit ♥"); }
+    persistKit();
   });
 
   function renderKit() {
     const host = $("kitlist");
     if (!host) return;
-    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    const list = kitItems();
     if (!list.length) {
-      host.innerHTML = `<div class="palempty">Your kit is empty — tap the ♥ on any piece to save it here.</div>`;
+      host.innerHTML = `<div class="palempty">Your kit is empty — tap the ♥ on any piece (or save an edit from the studio).</div>`;
       return;
     }
     host.innerHTML = "";
     list.forEach((it) => {
+      const isCustom = !bySlug.has(it.slug);
       const row = document.createElement("div");
       row.className = "pali";
-      row.innerHTML = `${swatch(it)}<span class="paliname">${it.name}</span><span class="pc">${it.cat}</span><button class="palx" aria-label="Remove">✕</button>`;
-      row.querySelector(".paliname")!.addEventListener("click", () => (location.href = itemUrl(it)));
+      row.innerHTML = `${swatch(it)}<span class="paliname">${it.name}</span><span class="pc">${isCustom ? "edited" : it.cat}</span><button class="palx" aria-label="Remove">✕</button>`;
+      row.querySelector(".paliname")!.addEventListener("click", () => {
+        if (isCustom) copyText(primaryCode(it), "Copied code ✓");
+        else location.href = itemUrl(it);
+      });
       row.querySelector(".palx")!.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        kit.delete(it.slug);
-        saveKit();
+        const idx = kit.indexOf(it.slug);
+        if (idx >= 0) kit.splice(idx, 1);
+        persistKit();
         renderKit();
       });
       host.appendChild(row);
@@ -159,22 +168,25 @@
   }
 
   $("kitCss")?.addEventListener("click", () => {
-    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    const list = kitItems();
     if (!list.length) return showToast("Kit is empty");
     download("copykit.css", kitCss(list), "text/css");
     showToast("Downloaded copykit.css ✓");
   });
   $("kitJson")?.addEventListener("click", () => {
-    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    const list = kitItems();
     if (!list.length) return showToast("Kit is empty");
     download("copykit.json", kitJson(list), "application/json");
     showToast("Downloaded copykit.json ✓");
   });
   $("kitClear")?.addEventListener("click", () => {
-    kit.clear();
-    saveKit();
+    kit = [];
+    persistKit();
     renderKit();
   });
+
+  // keep in sync when the studio saves an edited version
+  window.addEventListener("copykit:kit-changed", () => { loadKit(); syncKitUi(); });
 
   // ============================================================
   // Live theming
