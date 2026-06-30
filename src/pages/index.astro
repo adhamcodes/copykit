@@ -1,0 +1,141 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Card from "../components/Card.astro";
+import { items } from "../data/items";
+
+const GITHUB_URL = "https://github.com/adhamcodes/copykit";
+
+// Display labels + the order categories should appear in.
+const CATS: { key: string; label: string }[] = [
+  { key: "gradients", label: "Gradients" },
+  { key: "palettes", label: "Palettes" },
+  { key: "shadows", label: "Shadows" },
+  { key: "buttons", label: "Buttons" },
+  { key: "cards", label: "Cards" },
+  { key: "loaders", label: "Loaders" },
+  { key: "backgrounds", label: "Backgrounds" },
+  { key: "textfx", label: "Text Effects" },
+  { key: "toggles", label: "Toggles" },
+  { key: "inputs", label: "Inputs" },
+  { key: "badges", label: "Badges" },
+  { key: "cursors", label: "Cursor FX" },
+];
+
+// Group items by category, keeping only categories that actually have items.
+const grouped = CATS.map((c) => ({
+  ...c,
+  items: items.filter((it) => it.cat === c.key),
+})).filter((g) => g.items.length > 0);
+
+const total = items.length;
+const gradientCount = items.filter((i) => i.type === "gradient").length;
+const paletteCount = items.filter((i) => i.type === "palette").length;
+const componentCount = items.filter((i) => i.type === "comp").length;
+---
+
+<Layout>
+  <header>
+    <nav class="wrap">
+      <a class="logo" href="/" aria-label="CopyKit home">
+        <span class="d"></span>
+        <span>Copy<b>Kit</b></span>
+      </a>
+      <div class="search">
+        <span class="mono" aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          placeholder="Search gradients, buttons, shadows…"
+          aria-label="Search (coming soon)"
+          disabled
+        />
+        <span class="k">/</span>
+      </div>
+      <div class="nav-actions">
+        <a class="ghlink" href={GITHUB_URL} target="_blank" rel="noopener">
+          GitHub
+        </a>
+        <span class="by">by Adham</span>
+      </div>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <span class="kicker"><span class="dot"></span> Free · No signup · Runs in your browser</span>
+      <h1>Frontend magic,<br /><span class="g">ready to copy</span></h1>
+      <p>
+        A living library of gradients, palettes, shadows and UI components.
+        Browse, preview live, and copy the code — built for developers,
+        designers and motion artists.
+      </p>
+      <p class="builtfor">
+        For <span>developers</span> · <span>designers</span> · <span>motion artists</span>
+      </p>
+
+      <div class="stats">
+        <div class="stat-chip"><div class="num">{total}</div><div class="lbl">Pieces</div></div>
+        <div class="stat-chip"><div class="num">{gradientCount}</div><div class="lbl">Gradients</div></div>
+        <div class="stat-chip"><div class="num">{paletteCount}</div><div class="lbl">Palettes</div></div>
+        <div class="stat-chip"><div class="num">{componentCount}</div><div class="lbl">Components</div></div>
+      </div>
+    </section>
+
+    <nav class="catbar" aria-label="Categories">
+      {grouped.map((g) => (
+        <a class="catlink" href={`#${g.key}`}>
+          {g.label}<span class="cn">{g.items.length}</span>
+        </a>
+      ))}
+    </nav>
+
+    {grouped.map((g) => (
+      <section id={g.key}>
+        <div class="section-head">
+          <h2>{g.label}</h2>
+          <span class="meta">{g.items.length} pieces</span>
+        </div>
+        <div class="grid">
+          {g.items.map((it) => (
+            <Card item={it} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="fcols">
+        <div class="fbrand">
+          <div class="logo"><span class="d"></span><span>Copy<b>Kit</b></span></div>
+          <p>
+            A living, copy-ready library of gradients, palettes, shadows and UI
+            components. Free, no signup, 100% in your browser.
+          </p>
+          <div class="fsocial">
+            <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
+          </div>
+        </div>
+        <div class="fcol">
+          <h4>Browse</h4>
+          {grouped.slice(0, 6).map((g) => (
+            <a href={`#${g.key}`}>{g.label}</a>
+          ))}
+        </div>
+        <div class="fcol">
+          <h4>More</h4>
+          {grouped.slice(6).map((g) => (
+            <a href={`#${g.key}`}>{g.label}</a>
+          ))}
+        </div>
+        <div class="fcol">
+          <h4>Project</h4>
+          <a href={GITHUB_URL} target="_blank" rel="noopener">Source code</a>
+        </div>
+      </div>
+      <div class="fbot">
+        Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a>
+      </div>
+    </div>
+  </footer>
+</Layout>
