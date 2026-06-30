@@ -5,6 +5,22 @@
 
 <div class="cur" id="cur" aria-hidden="true"></div>
 
+<button class="totop" id="totop" type="button" aria-label="Back to top">↑</button>
+
+<div class="pal" id="shortcuts" role="dialog" aria-label="Keyboard shortcuts" aria-modal="true">
+  <div class="palbox">
+    <div class="palhead"><b>Keyboard shortcuts ⌨</b></div>
+    <div class="shortcut-list">
+      <div class="srow"><span>Search</span><span><kbd>⌘</kbd><kbd>K</kbd> &nbsp;or&nbsp; <kbd>/</kbd></span></div>
+      <div class="srow"><span>This menu</span><span><kbd>?</kbd></span></div>
+      <div class="srow"><span>Close any panel</span><span><kbd>Esc</kbd></span></div>
+      <div class="srow"><span>Save a piece</span><span>tap <b>♥</b> on a card</span></div>
+      <div class="srow"><span>Theme the site</span><span>tap <b>🎨</b></span></div>
+      <div class="srow"><span>Open a piece</span><span>click any card</span></div>
+    </div>
+  </div>
+</div>
+
 <div class="pal" id="pal" role="dialog" aria-label="Search" aria-modal="true">
   <div class="palbox">
     <input id="palinput" type="text" placeholder="Search pieces by name or category…" autocomplete="off" spellcheck="false" />
@@ -41,7 +57,7 @@
   import { items } from "../data/items";
   import type { Item } from "../data/items";
   import { itemUrl } from "../lib/catalog";
-  import { showToast } from "../lib/ui";
+  import { showToast, confetti } from "../lib/ui";
   import { kitCss, kitJson } from "../lib/exporters";
   import { pickAccents, DEFAULT_ACCENTS } from "../lib/theme";
 
@@ -205,10 +221,10 @@
     $(id)?.classList.remove("open");
   }
   function closeAll() {
-    ["pal", "kit", "theme"].forEach(close);
+    ["pal", "kit", "theme", "shortcuts"].forEach(close);
   }
   // click backdrop closes
-  ["pal", "kit", "theme"].forEach((id) => {
+  ["pal", "kit", "theme", "shortcuts"].forEach((id) => {
     $(id)?.addEventListener("click", (e) => {
       if (e.target === $(id)) close(id);
     });
@@ -267,13 +283,35 @@
   document.querySelectorAll<HTMLElement>("[data-search], #searchTrigger").forEach((el) =>
     el.addEventListener("click", openSearch)
   );
+  document.querySelectorAll<HTMLElement>("[data-shortcuts]").forEach((el) =>
+    el.addEventListener("click", () => open("shortcuts"))
+  );
   $("kitBtn")?.addEventListener("click", () => { renderKit(); open("kit"); });
   $("themeBtn")?.addEventListener("click", () => { renderThemeList(); open("theme"); });
 
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); }
+    else if (e.key === "?" && !isTyping()) { e.preventDefault(); open("shortcuts"); }
     else if (e.key === "/" && !isTyping()) { e.preventDefault(); openSearch(); }
     else if (e.key === "Escape") closeAll();
+  });
+
+  // ---- back to top ----
+  const totop = $("totop");
+  window.addEventListener("scroll", () => totop?.classList.toggle("show", window.scrollY > 500), { passive: true });
+  totop?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+  // ---- 🥚 surprise theme (from the logo-dot easter egg) ----
+  window.addEventListener("copykit:surprise", () => {
+    if (!palettes.length) return;
+    const p = palettes[Math.floor(Math.random() * palettes.length)];
+    if (p.type === "palette") {
+      const [a, b] = pickAccents(p.cols);
+      applyTheme(a, b);
+      localStorage.setItem(THEME_KEY, JSON.stringify([a, b]));
+    }
+    confetti();
+    showToast("🎉 You found a secret — surprise theme!");
   });
 
   // ---- init ----

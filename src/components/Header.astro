@@ -1,23 +1,83 @@
 ---
+import { groupedCats, catUrl } from "../lib/catalog";
 const GITHUB_URL = "https://github.com/adhamcodes/copykit";
+const groups = groupedCats();
 ---
 
 <header>
   <nav class="wrap">
     <a class="logo" href="/" aria-label="CopyKit home">
-      <span class="d"></span>
+      <span class="d" id="logodot"></span>
       <span>Copy<b>Kit</b></span>
     </a>
-    <button class="search" id="searchTrigger" type="button" aria-label="Search (⌘K)">
+
+    <div class="dd" id="browse">
+      <button class="hbtn browse-btn" id="browseBtn" aria-haspopup="true" aria-expanded="false">
+        Browse <i aria-hidden="true">▾</i>
+      </button>
+      <div class="browse-panel" id="browsePanel" role="menu">
+        {groups.map((g) => (
+          <div class="bgroup">
+            <h4>{g.label}</h4>
+            {g.cats.map((c) => (
+              <a role="menuitem" href={catUrl(c.meta.key)}>
+                {c.meta.label}<span class="bcount">{c.count}</span>
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <button class="search js-search" id="searchTrigger" type="button" data-search aria-label="Search pieces (⌘K)">
       <span class="mono" aria-hidden="true">⌕</span>
-      <span class="search-ph">Search gradients, buttons, shadows…</span>
+      <span class="search-ph">Search pieces…</span>
       <span class="k">⌘K</span>
     </button>
+
     <div class="nav-actions">
-      <button class="hbtn" id="themeBtn" type="button" title="Paint the site a palette" aria-label="Theme the site">🎨</button>
+      <button class="hbtn icon-only" id="themeBtn" type="button" title="Paint the site a palette" aria-label="Theme the site">🎨</button>
       <button class="hbtn kit-btn" id="kitBtn" type="button" aria-label="My Kit">♥ <span id="kitCount">0</span></button>
       <a class="ghlink" href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
       <span class="by">by Adham</span>
     </div>
   </nav>
 </header>
+
+<script>
+  const dd = document.getElementById("browse");
+  const btn = document.getElementById("browseBtn");
+  btn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const open = dd?.classList.toggle("open");
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  document.addEventListener("click", (e) => {
+    if (dd && !dd.contains(e.target as Node)) {
+      dd.classList.remove("open");
+      btn?.setAttribute("aria-expanded", "false");
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      dd?.classList.remove("open");
+      btn?.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  // 🥚 easter egg: tap the logo dot 5x quickly
+  const dot = document.getElementById("logodot");
+  let taps = 0;
+  let timer: number | undefined;
+  dot?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    taps++;
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => (taps = 0), 800);
+    if (taps >= 5) {
+      taps = 0;
+      window.dispatchEvent(new CustomEvent("copykit:surprise"));
+    }
+  });
+</script>

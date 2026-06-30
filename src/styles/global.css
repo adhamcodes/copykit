@@ -1577,3 +1577,191 @@ footer {
   0% { transform: translate(0, 0) rotate(0); opacity: 1; }
   100% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; }
 }
+
+
+/* ============================================================
+   SECTION 2 — Header (Browse dropdown, mobile) + Footer +
+   back-to-top + shortcuts modal
+   ============================================================ */
+
+.dd {
+  position: relative;
+}
+.browse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.browse-btn i {
+  font-style: normal;
+  color: var(--muted);
+  transition: 0.25s;
+}
+.dd.open .browse-btn {
+  border-color: var(--green);
+  color: var(--green);
+}
+.dd.open .browse-btn i {
+  transform: rotate(180deg);
+}
+.browse-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(150px, 1fr));
+  gap: 18px;
+  background: rgba(13, 10, 23, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: 0.2s;
+  z-index: 60;
+  width: max-content;
+  max-width: 90vw;
+}
+.dd.open .browse-panel {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.bgroup h4 {
+  font-family: "IBM Plex Mono";
+  font-size: 11px;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.bgroup a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 13.5px;
+  color: var(--muted);
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: 0.15s;
+}
+.bgroup a:hover {
+  background: rgba(139, 70, 214, 0.12);
+  color: var(--text);
+}
+.bcount {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+/* responsive header */
+@media (max-width: 860px) {
+  .browse-panel { grid-template-columns: repeat(2, 1fr); }
+  nav .by { display: none; }
+}
+@media (max-width: 680px) {
+  .search { display: inline-flex !important; max-width: none; flex: 0 0 auto; width: auto; margin-left: 0; padding: 10px 12px; }
+  .search-ph, .search .k { display: none; }
+  .ghlink { padding: 10px 11px; }
+  .browse-panel {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 64px;
+    grid-template-columns: 1fr 1fr;
+    width: auto;
+    max-width: none;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 440px) {
+  .ghlink { display: none; }
+  .browse-panel { grid-template-columns: 1fr; }
+}
+
+/* footer extras */
+.fsocial-btn {
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 9px 13px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.fsocial-btn:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+.fbot kbd {
+  font-family: "IBM Plex Mono";
+  font-size: 11px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+
+/* back to top */
+.totop {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--green), var(--cyan));
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 80;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(14px);
+  transition: 0.3s;
+  box-shadow: 0 12px 30px rgba(139, 70, 214, 0.45);
+}
+.totop.show {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+
+/* shortcuts modal */
+.shortcut-list {
+  padding: 8px 18px 18px;
+}
+.srow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+.srow:first-child {
+  border-top: none;
+}
+.srow kbd {
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+.srow b {
+  color: var(--text);
+}
