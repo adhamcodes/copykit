@@ -131,13 +131,14 @@ const jsonLd = {
 <script>
   import { items } from "../../data/items";
   import { formatsFor, highlight } from "../../lib/codegen";
-  import { copyText } from "../../lib/ui";
+  import { copyText, confetti, trackRecent } from "../../lib/ui";
   import { fillPreview } from "../../lib/preview";
 
   const root = document.querySelector<HTMLElement>(".item-page");
   const slug = root?.dataset.item;
   const item = items.find((i) => i.slug === slug);
   if (item) {
+    trackRecent(item.slug);
     const formats = formatsFor(item);
     let activeFmt = 0;
 
@@ -171,6 +172,7 @@ const jsonLd = {
       copyText(code, `Copied ${label} ✓`);
       copyBtn.textContent = "Copied ✓";
       copyBtn.classList.add("ok");
+      confetti();
     });
   }
 </script>

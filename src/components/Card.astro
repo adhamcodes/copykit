@@ -1,7 +1,7 @@
 ---
 import type { Item } from "../data/items";
-import { frameDoc } from "../lib/codegen";
 import { itemUrl } from "../lib/catalog";
+import Preview from "./Preview.astro";
 
 export interface Props {
   item: Item;
@@ -10,37 +10,10 @@ const { item } = Astro.props;
 const catLabel = item.cat.replace(/s$/, "");
 ---
 
-<a class="card" href={itemUrl(item)} data-slug={item.slug} aria-label={`${item.name} — view code`}>
+<a class="card reveal" href={itemUrl(item)} data-slug={item.slug} aria-label={`${item.name} — view code`}>
   <div class="pv">
     <span class="heart" data-slug={item.slug} role="button" tabindex="-1" aria-label="Save to My Kit" title="Save to My Kit">♡</span>
-    {item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
-
-    {item.type === "palette" && (
-      <div class="pvpal">
-        {item.cols.map((c) => (
-          <div style={`background:${c}`}></div>
-        ))}
-      </div>
-    )}
-
-    {item.type === "shadow" && (
-      <div class="pvshadow">
-        <div
-          class="pvcard"
-          style={`box-shadow:${item.x}px ${item.y}px ${item.blur}px ${item.spread}px ${item.color}`}
-        >
-        </div>
-      </div>
-    )}
-
-    {item.type === "comp" && (
-      <iframe
-        class="pvframe"
-        loading="lazy"
-        sandbox="allow-scripts"
-        title={`${item.name} preview`}
-        srcdoc={frameDoc(item, "#141021")}></iframe>
-    )}
+    <Preview item={item} />
   </div>
 
   <div class="cb">
