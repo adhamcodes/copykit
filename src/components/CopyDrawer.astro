@@ -1,0 +1,169 @@
+---
+// Shared copy drawer + toast. Include once per page. The gallery cards are
+// real <a> links to item pages; this script upgrades a click into the drawer
+// (so the site works without JS, and crawlers still follow the links).
+---
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Code viewer">
+  <div class="dh">
+    <div>
+      <h3 id="dname">—</h3>
+      <span class="dcat" id="dcat">—</span>
+    </div>
+    <div class="hd">
+      <a class="dopen" id="dpage" href="#" aria-label="Open full page">↗</a>
+      <button id="dclose" aria-label="Close">✕</button>
+    </div>
+  </div>
+  <div class="dbody">
+    <div class="dpv-wrap">
+      <div class="pvtoggle" role="group" aria-label="Preview background">
+        <button data-bg="dark" class="on">Dark</button>
+        <button data-bg="light">Light</button>
+      </div>
+      <div id="dpv"></div>
+    </div>
+    <div class="ftabs" id="ftabs" role="tablist"></div>
+    <div class="codebox"><pre id="codeblock"></pre></div>
+    <button class="copybtn" id="copybtn">Copy code</button>
+  </div>
+</aside>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  import { items } from "../data/items";
+  import type { Item } from "../data/items";
+  import { formatsFor, highlight, type Format } from "../lib/codegen";
+  import { itemUrl, itemSlugOf } from "../lib/catalog";
+  import { copyText } from "../lib/ui";
+  import { fillPreview } from "../lib/preview";
+
+  const bySlug = new Map(items.map((i) => [i.slug, i]));
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const scrim = $("scrim");
+  const drawer = $("drawer");
+  const dpv = $("dpv");
+  const ftabs = $("ftabs");
+  const codeblock = $("codeblock");
+  const copybtn = $("copybtn") as HTMLButtonElement;
+  const dpage = $("dpage") as HTMLAnchorElement;
+
+  let current: Item | null = null;
+  let formats: Format[] = [];
+  let activeFmt = 0;
+  let previewBg: "dark" | "light" = "dark";
+
+  function showCode(i: number) {
+    activeFmt = i;
+    const [, code] = formats[i];
+    codeblock.innerHTML = highlight(code);
+    [...ftabs.children].forEach((b, idx) => b.classList.toggle("on", idx === i));
+    copybtn.textContent = "Copy code";
+    copybtn.classList.remove("ok");
+  }
+
+  function buildTabs(it: Item) {
+    formats = formatsFor(it);
+    ftabs.innerHTML = "";
+    formats.forEach(([label], i) => {
+      const b = document.createElement("button");
+      b.className = "ftab" + (i === 0 ? " on" : "");
+      b.textContent = label;
+      b.setAttribute("role", "tab");
+      b.addEventListener("click", () => showCode(i));
+      ftabs.appendChild(b);
+    });
+    showCode(0);
+  }
+
+  function openDrawer(it: Item) {
+    current = it;
+    previewBg = "dark";
+    $("dname").textContent = it.name;
+    $("dcat").textContent = it.cat;
+    dpage.href = itemUrl(it);
+    document.title = `${it.name} · ${it.cat} — CopyKit`;
+    document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
+      b.classList.toggle("on", b.dataset.bg === "dark")
+    );
+    fillPreview(dpv, it, "dark");
+    buildTabs(it);
+    scrim.classList.add("open");
+    drawer.classList.add("open");
+    drawer.setAttribute("aria-hidden", "false");
+    history.replaceState(null, "", "#" + itemSlugOf(it));
+    copybtn.focus();
+  }
+
+  function closeDrawer() {
+    scrim.classList.remove("open");
+    drawer.classList.remove("open");
+    drawer.setAttribute("aria-hidden", "true");
+    current = null;
+    history.replaceState(null, "", location.pathname + location.search);
+  }
+
+  copybtn.addEventListener("click", () => {
+    if (!current) return;
+    const [label, code] = formats[activeFmt];
+    copyText(code, `Copied ${label} ✓`);
+    copybtn.textContent = "Copied ✓";
+    copybtn.classList.add("ok");
+  });
+
+  document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (!current) return;
+      previewBg = (b.dataset.bg as "dark" | "light") || "dark";
+      document.querySelectorAll(".pvtoggle button").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      fillPreview(dpv, current, previewBg);
+    })
+  );
+
+  $("dclose").addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && current) closeDrawer();
+  });
+
+  // Intercept card link clicks -> open drawer instead of navigating.
+  // (ctrl/cmd/middle-click still opens the item page in a new tab.)
+  document.addEventListener("click", (e) => {
+    const me = e as MouseEvent;
+    if (me.metaKey || me.ctrlKey || me.shiftKey || me.button === 1) return;
+    const card = (e.target as HTMLElement).closest<HTMLElement>(".card");
+    if (!card) return;
+    const slug = card.dataset.slug;
+    const it = slug ? bySlug.get(slug) : undefined;
+    if (it) {
+      e.preventDefault();
+      openDrawer(it);
+    }
+  });
+
+  // Keyboard: Enter/Space on a focused card opens the drawer.
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const el = document.activeElement as HTMLElement | null;
+    if (el && el.classList.contains("card")) {
+      const slug = el.dataset.slug;
+      const it = slug ? bySlug.get(slug) : undefined;
+      if (it) {
+        e.preventDefault();
+        openDrawer(it);
+      }
+    }
+  });
+
+  // Deep link: open the piece named in the URL hash on load.
+  const initial = location.hash.slice(1);
+  for (const it of items) {
+    if (itemSlugOf(it) === initial) {
+      openDrawer(it);
+      break;
+    }
+  }
+</script>

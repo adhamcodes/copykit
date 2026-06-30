@@ -1,0 +1,37 @@
+---
+import { activeCats, catUrl } from "../lib/catalog";
+const GITHUB_URL = "https://github.com/adhamcodes/copykit";
+const cats = activeCats();
+---
+
+<footer>
+  <div class="wrap">
+    <div class="fcols">
+      <div class="fbrand">
+        <div class="logo"><span class="d"></span><span>Copy<b>Kit</b></span></div>
+        <p>
+          A living, copy-ready library of gradients, palettes, shadows and UI
+          components. Free, no signup, 100% in your browser.
+        </p>
+        <div class="fsocial">
+          <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <div class="fcol">
+        <h4>Browse</h4>
+        {cats.slice(0, 6).map((g) => <a href={catUrl(g.key)}>{g.label}</a>)}
+      </div>
+      <div class="fcol">
+        <h4>More</h4>
+        {cats.slice(6).map((g) => <a href={catUrl(g.key)}>{g.label}</a>)}
+      </div>
+      <div class="fcol">
+        <h4>Project</h4>
+        <a href={GITHUB_URL} target="_blank" rel="noopener">Source code</a>
+      </div>
+    </div>
+    <div class="fbot">
+      Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a>
+    </div>
+  </div>
+</footer>

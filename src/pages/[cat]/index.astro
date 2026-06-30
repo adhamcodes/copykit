@@ -1,0 +1,70 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Card from "../../components/Card.astro";
+import CopyDrawer from "../../components/CopyDrawer.astro";
+import { activeCats, catUrl, itemsByCat, type CatMeta } from "../../lib/catalog";
+
+export function getStaticPaths() {
+  return activeCats().map((meta) => ({
+    params: { cat: meta.key },
+    props: { meta },
+  }));
+}
+
+interface Props {
+  meta: CatMeta;
+}
+const { meta } = Astro.props;
+const list = itemsByCat(meta.key);
+
+const title = `${meta.label} — ${list.length} copy-ready ${meta.singular}s | CopyKit`;
+const description = meta.blurb;
+const path = catUrl(meta.key);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: `${meta.label} — CopyKit`,
+  description: meta.blurb,
+  url: new URL(path, Astro.site ?? "https://copykit.dev").href,
+  isPartOf: { "@type": "WebSite", name: "CopyKit", url: (Astro.site ?? new URL("https://copykit.dev")).href },
+};
+---
+
+<Layout title={title} description={description} path={path} jsonLd={jsonLd}>
+  <Header />
+
+  <main class="wrap">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a> <span>/</span> <span aria-current="page">{meta.label}</span>
+    </nav>
+
+    <section class="cat-head">
+      <h1>{meta.label}</h1>
+      <p>{meta.blurb}</p>
+      <span class="meta">{list.length} pieces · free · copy-paste ready</span>
+    </section>
+
+    <div class="grid">
+      {list.map((it) => (
+        <Card item={it} />
+      ))}
+    </div>
+
+    <section class="otherc">
+      <h2>Other categories</h2>
+      <nav class="catbar" aria-label="Other categories">
+        {activeCats()
+          .filter((c) => c.key !== meta.key)
+          .map((c) => (
+            <a class="catlink" href={catUrl(c.key)}>{c.label}</a>
+          ))}
+      </nav>
+    </section>
+  </main>
+
+  <Footer />
+  <CopyDrawer />
+</Layout>

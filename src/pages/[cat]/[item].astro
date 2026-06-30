@@ -1,0 +1,176 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import Card from "../../components/Card.astro";
+import CopyDrawer from "../../components/CopyDrawer.astro";
+import { items } from "../../data/items";
+import type { Item } from "../../data/items";
+import { formatsFor, highlight, frameDoc } from "../../lib/codegen";
+import { catMeta, itemSlugOf, itemUrl, catUrl, relatedItems } from "../../lib/catalog";
+
+export function getStaticPaths() {
+  return items.map((item) => ({
+    params: { cat: item.cat, item: itemSlugOf(item) },
+    props: { item },
+  }));
+}
+
+interface Props {
+  item: Item;
+}
+const { item } = Astro.props;
+const meta = catMeta(item.cat);
+const singular = meta?.singular ?? item.cat;
+const catLabel = meta?.label ?? item.cat;
+
+const formats = formatsFor(item);
+const defaultCodeHtml = highlight(formats[0][1]);
+const fmtNames = formats.map((f) => f[0]).join(", ");
+const related = relatedItems(item, 6);
+
+// Unique, context-specific description per item (not templated identically).
+function describe(it: Item): string {
+  if (it.type === "gradient") {
+    const cols = it.grad.match(/#[0-9a-fA-F]{3,8}/g) ?? [];
+    return `${it.name} is a CSS gradient blending ${cols.join(" and ")}. Use it on a hero background, button or card. Copy it as plain CSS or a Tailwind arbitrary value — it works anywhere a background does.`;
+  }
+  if (it.type === "palette") {
+    return `${it.name} is a ${it.cols.length}-color palette (${it.cols.join(", ")}). Copy it as CSS variables, a Tailwind color config, a plain hex list or a JS array, and reuse it across your whole design.`;
+  }
+  if (it.type === "shadow") {
+    return `${it.name} is a box-shadow preset — ${it.x}px / ${it.y}px offset with ${it.blur}px blur in ${it.color}. It adds depth to cards, buttons and modals. Copy the CSS or a Tailwind arbitrary shadow.`;
+  }
+  return `${it.name} is a copy-ready ${singular} built with ${it.js ? "HTML, CSS and a little JavaScript" : "pure HTML and CSS"}. Preview it live below, then copy it as HTML/CSS, React or Vue and paste it straight into your project.`;
+}
+const description = describe(item);
+
+const title = `${item.name} — ${singular} to copy (${fmtNames}) | CopyKit`;
+const path = itemUrl(item);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CreativeWork",
+  name: `${item.name} — ${singular}`,
+  description,
+  url: new URL(path, Astro.site ?? "https://copykit.dev").href,
+  isAccessibleForFree: true,
+  keywords: `${item.name}, ${singular}, ${item.cat}, copy css, ${fmtNames}`,
+  author: { "@type": "Person", name: "Adham" },
+};
+---
+
+<Layout title={title} description={description} path={path} jsonLd={jsonLd}>
+  <Header />
+
+  <main class="wrap item-page" data-item={item.slug}>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Home</a> <span>/</span>
+      <a href={catUrl(item.cat)}>{catLabel}</a> <span>/</span>
+      <span aria-current="page">{item.name}</span>
+    </nav>
+
+    <div class="item-head">
+      <h1>{item.name}</h1>
+      <span class="cc">{singular}</span>
+    </div>
+    <p class="about">{description}</p>
+
+    <div class="item-grid">
+      <div class="item-pv-wrap">
+        <div class="ipvtoggle" role="group" aria-label="Preview background">
+          <button data-bg="dark" class="on">Dark</button>
+          <button data-bg="light">Light</button>
+        </div>
+        <div class="item-pv" id="ipv">
+          {item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
+          {item.type === "palette" && (
+            <div class="pvpal">{item.cols.map((c) => <div style={`background:${c}`}></div>)}</div>
+          )}
+          {item.type === "shadow" && (
+            <div class="pvshadow">
+              <div class="pvcard" style={`box-shadow:${item.x}px ${item.y}px ${item.blur}px ${item.spread}px ${item.color}`}></div>
+            </div>
+          )}
+          {item.type === "comp" && (
+            <iframe class="pvframe" sandbox="allow-scripts" title={`${item.name} preview`} srcdoc={frameDoc(item, "#141021")}></iframe>
+          )}
+        </div>
+      </div>
+
+      <div class="item-code">
+        <div class="ftabs" id="ifmts" role="tablist">
+          {formats.map(([label], i) => (
+            <button class={"ftab" + (i === 0 ? " on" : "")} data-i={i} role="tab">{label}</button>
+          ))}
+        </div>
+        <div class="codebox"><pre id="icode" set:html={defaultCodeHtml}></pre></div>
+        <button class="copybtn" id="icopy">Copy code</button>
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="related">
+        <div class="section-head">
+          <h2>More {catLabel.toLowerCase()}</h2>
+          <span class="meta"><a href={catUrl(item.cat)}>See all →</a></span>
+        </div>
+        <div class="grid">
+          {related.map((it) => (
+            <Card item={it} />
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+
+  <Footer />
+  <CopyDrawer />
+</Layout>
+
+<script>
+  import { items } from "../../data/items";
+  import { formatsFor, highlight } from "../../lib/codegen";
+  import { copyText } from "../../lib/ui";
+  import { fillPreview } from "../../lib/preview";
+
+  const root = document.querySelector<HTMLElement>(".item-page");
+  const slug = root?.dataset.item;
+  const item = items.find((i) => i.slug === slug);
+  if (item) {
+    const formats = formatsFor(item);
+    let activeFmt = 0;
+
+    const pv = document.getElementById("ipv")!;
+    const codeEl = document.getElementById("icode")!;
+    const copyBtn = document.getElementById("icopy") as HTMLButtonElement;
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("#ifmts .ftab")];
+
+    fillPreview(pv, item, "dark");
+
+    document.querySelectorAll<HTMLElement>(".ipvtoggle button").forEach((b) =>
+      b.addEventListener("click", () => {
+        document.querySelectorAll(".ipvtoggle button").forEach((x) => x.classList.remove("on"));
+        b.classList.add("on");
+        fillPreview(pv, item, (b.dataset.bg as "dark" | "light") || "dark");
+      })
+    );
+
+    function showCode(i: number) {
+      activeFmt = i;
+      codeEl.innerHTML = highlight(formats[i][1]);
+      tabs.forEach((t, idx) => t.classList.toggle("on", idx === i));
+      copyBtn.textContent = "Copy code";
+      copyBtn.classList.remove("ok");
+    }
+
+    tabs.forEach((t, i) => t.addEventListener("click", () => showCode(i)));
+
+    copyBtn.addEventListener("click", () => {
+      const [label, code] = formats[activeFmt];
+      copyText(code, `Copied ${label} ✓`);
+      copyBtn.textContent = "Copied ✓";
+      copyBtn.classList.add("ok");
+    });
+  }
+</script>

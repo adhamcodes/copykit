@@ -1,6 +1,7 @@
 ---
 import type { Item } from "../data/items";
 import { frameDoc } from "../lib/codegen";
+import { itemUrl } from "../lib/catalog";
 
 export interface Props {
   item: Item;
@@ -9,7 +10,7 @@ const { item } = Astro.props;
 const catLabel = item.cat.replace(/s$/, "");
 ---
 
-<article class="card" data-slug={item.slug} role="button" tabindex="0" aria-label={`${item.name} — view code`}>
+<a class="card" href={itemUrl(item)} data-slug={item.slug} aria-label={`${item.name} — view code`}>
   <div class="pv">
     {item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
 
@@ -48,4 +49,4 @@ const catLabel = item.cat.replace(/s$/, "");
     </div>
     <span class="copen">&lt;/&gt; code</span>
   </div>
-</article>
+</a>
