@@ -18,14 +18,16 @@ const groups = groupedCats();
           <button class="fsocial-btn" type="button" data-shortcuts>⌨ Shortcuts</button>
         </div>
       </div>
-      {groups.map((g) => (
-        <div class="fcol">
-          <h4>{g.label}</h4>
-          {g.cats.map((c) => (
-            <a href={catUrl(c.meta.key)}>{c.meta.label}</a>
-          ))}
-        </div>
-      ))}
+      <div class="flinks">
+        {groups.map((g) => (
+          <div class="fcol">
+            <h4>{g.label}</h4>
+            {g.cats.map((c) => (
+              <a href={catUrl(c.meta.key)}>{c.meta.label}</a>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
     <div class="fbot">
       Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a> · press <kbd>?</kbd> for shortcuts

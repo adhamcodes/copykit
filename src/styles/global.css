@@ -1765,3 +1765,72 @@ footer {
 .srow b {
   color: var(--text);
 }
+
+
+/* ============================================================
+   Section 2 polish fixes — mobile header, back-to-top, footer
+   ============================================================ */
+
+/* --- header: never overflow on tablet/phone --- */
+@media (max-width: 820px) {
+  nav { gap: 10px; }
+  .ghlink { display: none; }
+  nav .by { display: none; }
+}
+@media (max-width: 680px) {
+  nav { gap: 8px; }
+  .search { display: inline-flex !important; max-width: none; flex: 0 0 auto; width: auto; margin-left: 0; padding: 10px 12px; }
+  .search-ph, .search .k { display: none; }
+  .hbtn { padding: 9px 11px; }
+  .browse-btn { padding: 9px 12px; }
+}
+
+/* --- back-to-top: sleeker, frosted, less of a bright blob --- */
+.totop {
+  right: 22px;
+  bottom: 22px;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: rgba(21, 17, 31, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  color: var(--text);
+  font-size: 16px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+.totop:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+.totop.show:hover {
+  transform: translateY(-2px);
+}
+@media (max-width: 600px) {
+  .totop { right: 14px; bottom: 14px; }
+}
+
+/* --- footer: brand left, links grouped right (balanced, no dead gap) --- */
+.fcols {
+  display: flex;
+  justify-content: space-between;
+  gap: 36px 56px;
+  flex-wrap: wrap;
+  grid-template-columns: none;
+}
+.fbrand {
+  flex: 1 1 280px;
+  max-width: 340px;
+}
+.flinks {
+  display: flex;
+  gap: 24px 56px;
+  flex-wrap: wrap;
+}
+.fcol {
+  min-width: 120px;
+}
+@media (max-width: 760px) {
+  .fcols { flex-direction: column; gap: 30px; }
+  .flinks { gap: 28px 40px; }
+}
