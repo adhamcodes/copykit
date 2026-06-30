@@ -1024,3 +1024,228 @@ footer {
     height: 280px;
   }
 }
+
+
+/* ============================================================
+   The Moat — header buttons, save heart, ⌘K / kit / theme overlays
+   ============================================================ */
+
+/* header search is now a button trigger */
+.search {
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+.search-ph {
+  flex: 1;
+  font-family: "IBM Plex Mono";
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hbtn {
+  font-family: "IBM Plex Mono";
+  font-size: 13px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 10px 13px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.hbtn:hover {
+  border-color: var(--green);
+}
+.kit-btn.has .num,
+.kit-btn {
+  color: var(--text);
+}
+
+/* save heart on cards */
+.heart {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(9, 7, 15, 0.55);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 3;
+  color: var(--muted);
+  transition: 0.18s;
+}
+.heart:hover {
+  color: #ff5a7a;
+  border-color: #ff5a7a;
+}
+.heart.on {
+  color: #ff5a7a;
+  border-color: #ff5a7a;
+}
+
+/* overlays (search / kit / theme) */
+.pal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(4, 3, 8, 0.62);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+.pal.open {
+  display: flex;
+}
+.palbox {
+  width: min(580px, 92vw);
+  background: rgba(13, 10, 23, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.palbox input {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: "IBM Plex Mono";
+  font-size: 15px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.palhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.palhead b {
+  font-size: 15px;
+}
+.palhead-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.palsub {
+  padding: 12px 18px 4px;
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+  color: var(--muted);
+}
+.minibtn {
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+  color: var(--text);
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.18s;
+}
+.minibtn:hover {
+  border-color: var(--green);
+  color: var(--green);
+}
+.minibtn.ghost {
+  color: var(--muted);
+}
+.palist {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 8px;
+}
+.pali {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.pali.on {
+  background: rgba(139, 70, 214, 0.18);
+}
+.pali:hover {
+  background: rgba(139, 70, 214, 0.12);
+}
+.paliname {
+  flex: 1;
+  font-weight: 500;
+}
+.pali .pc {
+  font-family: "IBM Plex Mono";
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.palx {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  border-radius: 7px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.palx:hover {
+  border-color: #ff5a7a;
+  color: #ff5a7a;
+}
+.psw {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "IBM Plex Mono";
+  font-size: 11px;
+  color: var(--muted);
+}
+.psw-c {
+  background: var(--card);
+}
+.palempty {
+  text-align: center;
+  color: var(--muted);
+  font-family: "IBM Plex Mono";
+  font-size: 13px;
+  padding: 34px 16px;
+}
+
+@media (max-width: 600px) {
+  .search {
+    display: none;
+  }
+  .by {
+    display: none;
+  }
+}

@@ -1,0 +1,277 @@
+---
+// Global overlays + logic shared across every page (via Layout):
+//   ⌘K search palette · My Kit (save + export) · Live theming.
+---
+
+<div class="pal" id="pal" role="dialog" aria-label="Search" aria-modal="true">
+  <div class="palbox">
+    <input id="palinput" type="text" placeholder="Search pieces by name or category…" autocomplete="off" spellcheck="false" />
+    <div class="palist" id="palist"></div>
+  </div>
+</div>
+
+<div class="pal" id="kit" role="dialog" aria-label="My Kit" aria-modal="true">
+  <div class="palbox">
+    <div class="palhead">
+      <b>My Kit · <span id="kitCountBig">0</span></b>
+      <div class="palhead-actions">
+        <button class="minibtn" id="kitCss" type="button">Export .css</button>
+        <button class="minibtn" id="kitJson" type="button">Export .json</button>
+        <button class="minibtn ghost" id="kitClear" type="button">Clear</button>
+      </div>
+    </div>
+    <div class="palist" id="kitlist"></div>
+  </div>
+</div>
+
+<div class="pal" id="theme" role="dialog" aria-label="Theme the site" aria-modal="true">
+  <div class="palbox">
+    <div class="palhead">
+      <b>Paint the site 🎨</b>
+      <button class="minibtn ghost" id="themeReset" type="button">Reset</button>
+    </div>
+    <div class="palsub">Pick a palette — the whole site recolors to it.</div>
+    <div class="palist" id="themelist"></div>
+  </div>
+</div>
+
+<script>
+  import { items } from "../data/items";
+  import type { Item } from "../data/items";
+  import { itemUrl } from "../lib/catalog";
+  import { showToast } from "../lib/ui";
+  import { kitCss, kitJson } from "../lib/exporters";
+  import { pickAccents, DEFAULT_ACCENTS } from "../lib/theme";
+
+  const bySlug = new Map(items.map((i) => [i.slug, i]));
+  const palettes = items.filter((i) => i.type === "palette");
+
+  const $ = (id: string) => document.getElementById(id);
+  const isTyping = () => {
+    const a = document.activeElement;
+    return !!a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA");
+  };
+
+  function download(filename: string, text: string, mime: string) {
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ---- small preview swatch for list rows ----
+  function swatch(it: Item): string {
+    if (it.type === "gradient") return `<span class="psw" style="background:${it.grad}"></span>`;
+    if (it.type === "palette")
+      return `<span class="psw" style="background:linear-gradient(90deg,${it.cols.join(",")})"></span>`;
+    if (it.type === "shadow") return `<span class="psw psw-c">◧</span>`;
+    return `<span class="psw psw-c">&lt;/&gt;</span>`;
+  }
+
+  // ============================================================
+  // My Kit (localStorage)
+  // ============================================================
+  const KIT_KEY = "ck_kit";
+  let kit = new Set<string>();
+  try {
+    kit = new Set(JSON.parse(localStorage.getItem(KIT_KEY) || "[]"));
+  } catch { /* ignore */ }
+
+  function saveKit() {
+    localStorage.setItem(KIT_KEY, JSON.stringify([...kit]));
+    syncKitUi();
+  }
+  function syncKitUi() {
+    const n = kit.size;
+    const c = $("kitCount");
+    if (c) c.textContent = String(n);
+    const cb = $("kitCountBig");
+    if (cb) cb.textContent = String(n);
+    document.querySelectorAll<HTMLElement>(".heart").forEach((h) => {
+      const on = !!h.dataset.slug && kit.has(h.dataset.slug);
+      h.classList.toggle("on", on);
+      h.textContent = on ? "♥" : "♡";
+    });
+  }
+
+  // heart toggle (delegated; runs before the drawer because we cancel the event)
+  document.addEventListener("click", (e) => {
+    const h = (e.target as HTMLElement).closest<HTMLElement>(".heart");
+    if (!h || !h.dataset.slug) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const slug = h.dataset.slug;
+    if (kit.has(slug)) {
+      kit.delete(slug);
+      showToast("Removed from My Kit");
+    } else {
+      kit.add(slug);
+      showToast("Saved to My Kit ♥");
+    }
+    saveKit();
+  });
+
+  function renderKit() {
+    const host = $("kitlist");
+    if (!host) return;
+    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    if (!list.length) {
+      host.innerHTML = `<div class="palempty">Your kit is empty — tap the ♥ on any piece to save it here.</div>`;
+      return;
+    }
+    host.innerHTML = "";
+    list.forEach((it) => {
+      const row = document.createElement("div");
+      row.className = "pali";
+      row.innerHTML = `${swatch(it)}<span class="paliname">${it.name}</span><span class="pc">${it.cat}</span><button class="palx" aria-label="Remove">✕</button>`;
+      row.querySelector(".paliname")!.addEventListener("click", () => (location.href = itemUrl(it)));
+      row.querySelector(".palx")!.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        kit.delete(it.slug);
+        saveKit();
+        renderKit();
+      });
+      host.appendChild(row);
+    });
+  }
+
+  $("kitCss")?.addEventListener("click", () => {
+    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    if (!list.length) return showToast("Kit is empty");
+    download("copykit.css", kitCss(list), "text/css");
+    showToast("Downloaded copykit.css ✓");
+  });
+  $("kitJson")?.addEventListener("click", () => {
+    const list = [...kit].map((s) => bySlug.get(s)).filter(Boolean) as Item[];
+    if (!list.length) return showToast("Kit is empty");
+    download("copykit.json", kitJson(list), "application/json");
+    showToast("Downloaded copykit.json ✓");
+  });
+  $("kitClear")?.addEventListener("click", () => {
+    kit.clear();
+    saveKit();
+    renderKit();
+  });
+
+  // ============================================================
+  // Live theming
+  // ============================================================
+  const THEME_KEY = "ck_theme";
+  function applyTheme(a: string, b: string) {
+    const r = document.documentElement.style;
+    r.setProperty("--green", a);
+    r.setProperty("--cyan", b);
+  }
+  function renderThemeList() {
+    const host = $("themelist");
+    if (!host) return;
+    host.innerHTML = "";
+    palettes.forEach((p) => {
+      if (p.type !== "palette") return;
+      const row = document.createElement("div");
+      row.className = "pali";
+      row.innerHTML = `${swatch(p)}<span class="paliname">${p.name}</span><span class="pc">palette</span>`;
+      row.addEventListener("click", () => {
+        const [a, b] = pickAccents(p.cols);
+        applyTheme(a, b);
+        localStorage.setItem(THEME_KEY, JSON.stringify([a, b]));
+        showToast(`Site painted with “${p.name}” ✓`);
+        close("theme");
+      });
+      host.appendChild(row);
+    });
+  }
+  $("themeReset")?.addEventListener("click", () => {
+    applyTheme(DEFAULT_ACCENTS[0], DEFAULT_ACCENTS[1]);
+    localStorage.removeItem(THEME_KEY);
+    showToast("Theme reset");
+    close("theme");
+  });
+
+  // ============================================================
+  // Overlays (search / kit / theme)
+  // ============================================================
+  function open(id: string) {
+    $(id)?.classList.add("open");
+  }
+  function close(id: string) {
+    $(id)?.classList.remove("open");
+  }
+  function closeAll() {
+    ["pal", "kit", "theme"].forEach(close);
+  }
+  // click backdrop closes
+  ["pal", "kit", "theme"].forEach((id) => {
+    $(id)?.addEventListener("click", (e) => {
+      if (e.target === $(id)) close(id);
+    });
+  });
+
+  // ---- search palette ----
+  let results: Item[] = [];
+  let sel = 0;
+  const palinput = $("palinput") as HTMLInputElement | null;
+
+  function renderResults(q: string) {
+    const host = $("palist");
+    if (!host) return;
+    const query = q.trim().toLowerCase();
+    results = items
+      .filter((it) => !query || (it.name + " " + it.cat).toLowerCase().includes(query))
+      .slice(0, 60);
+    sel = 0;
+    if (!results.length) {
+      host.innerHTML = `<div class="palempty">No matches for “${q}”.</div>`;
+      return;
+    }
+    host.innerHTML = "";
+    results.forEach((it, i) => {
+      const row = document.createElement("div");
+      row.className = "pali" + (i === 0 ? " on" : "");
+      row.innerHTML = `${swatch(it)}<span class="paliname">${it.name}</span><span class="pc">${it.cat}</span>`;
+      row.addEventListener("click", () => (location.href = itemUrl(it)));
+      row.addEventListener("mousemove", () => setSel(i));
+      host.appendChild(row);
+    });
+  }
+  function setSel(i: number) {
+    sel = i;
+    const host = $("palist");
+    if (!host) return;
+    [...host.children].forEach((c, idx) => c.classList.toggle("on", idx === sel));
+    host.children[sel]?.scrollIntoView({ block: "nearest" });
+  }
+  function openSearch() {
+    open("pal");
+    if (palinput) {
+      palinput.value = "";
+      renderResults("");
+      setTimeout(() => palinput.focus(), 30);
+    }
+  }
+  palinput?.addEventListener("input", () => renderResults(palinput.value));
+  palinput?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") { e.preventDefault(); setSel(Math.min(sel + 1, results.length - 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setSel(Math.max(sel - 1, 0)); }
+    else if (e.key === "Enter") { const it = results[sel]; if (it) location.href = itemUrl(it); }
+  });
+
+  // ---- triggers ----
+  $("searchTrigger")?.addEventListener("click", openSearch);
+  $("kitBtn")?.addEventListener("click", () => { renderKit(); open("kit"); });
+  $("themeBtn")?.addEventListener("click", () => { renderThemeList(); open("theme"); });
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openSearch(); }
+    else if (e.key === "/" && !isTyping()) { e.preventDefault(); openSearch(); }
+    else if (e.key === "Escape") closeAll();
+  });
+
+  // ---- init ----
+  syncKitUi();
+</script>

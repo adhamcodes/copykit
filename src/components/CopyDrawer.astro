@@ -134,7 +134,9 @@
   document.addEventListener("click", (e) => {
     const me = e as MouseEvent;
     if (me.metaKey || me.ctrlKey || me.shiftKey || me.button === 1) return;
-    const card = (e.target as HTMLElement).closest<HTMLElement>(".card");
+    const target = e.target as HTMLElement;
+    if (target.closest(".heart")) return; // saving to kit, not opening
+    const card = target.closest<HTMLElement>(".card");
     if (!card) return;
     const slug = card.dataset.slug;
     const it = slug ? bySlug.get(slug) : undefined;
