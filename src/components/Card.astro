@@ -1,28 +1,15 @@
 ---
 import type { Item } from "../data/items";
+import { frameDoc } from "../lib/codegen";
 
 export interface Props {
   item: Item;
 }
 const { item } = Astro.props;
-
-// Build a self-contained sandboxed document for component previews,
-// mirroring the prototype's frameDoc().
-function frameDoc(it: Extract<Item, { type: "comp" }>): string {
-  const bg = it.bg || "transparent";
-  const js = it.js ? `<scr${""}ipt>${it.js}</scr${""}ipt>` : "";
-  return (
-    `<!doctype html><html><head><meta charset="utf-8">` +
-    `<style>html,body{height:100%;margin:0}` +
-    `body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:${bg}}` +
-    `${it.css || ""}</style></head><body>${it.html || ""}${js}</body></html>`
-  );
-}
-
 const catLabel = item.cat.replace(/s$/, "");
 ---
 
-<article class="card">
+<article class="card" data-slug={item.slug} role="button" tabindex="0" aria-label={`${item.name} — view code`}>
   <div class="pv">
     {item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
 
@@ -50,7 +37,7 @@ const catLabel = item.cat.replace(/s$/, "");
         loading="lazy"
         sandbox="allow-scripts"
         title={`${item.name} preview`}
-        srcdoc={frameDoc(item)}></iframe>
+        srcdoc={frameDoc(item, "#141021")}></iframe>
     )}
   </div>
 
@@ -59,5 +46,6 @@ const catLabel = item.cat.replace(/s$/, "");
       <div class="cn">{item.name}</div>
       <div class="cc">{catLabel}</div>
     </div>
+    <span class="copen">&lt;/&gt; code</span>
   </div>
 </article>
