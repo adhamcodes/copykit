@@ -1,0 +1,63 @@
+---
+import type { Item } from "../data/items";
+
+export interface Props {
+  item: Item;
+}
+const { item } = Astro.props;
+
+// Build a self-contained sandboxed document for component previews,
+// mirroring the prototype's frameDoc().
+function frameDoc(it: Extract<Item, { type: "comp" }>): string {
+  const bg = it.bg || "transparent";
+  const js = it.js ? `<scr${""}ipt>${it.js}</scr${""}ipt>` : "";
+  return (
+    `<!doctype html><html><head><meta charset="utf-8">` +
+    `<style>html,body{height:100%;margin:0}` +
+    `body{display:flex;align-items:center;justify-content:center;overflow:hidden;background:${bg}}` +
+    `${it.css || ""}</style></head><body>${it.html || ""}${js}</body></html>`
+  );
+}
+
+const catLabel = item.cat.replace(/s$/, "");
+---
+
+<article class="card">
+  <div class="pv">
+    {item.type === "gradient" && <div style={`background:${item.grad}`}></div>}
+
+    {item.type === "palette" && (
+      <div class="pvpal">
+        {item.cols.map((c) => (
+          <div style={`background:${c}`}></div>
+        ))}
+      </div>
+    )}
+
+    {item.type === "shadow" && (
+      <div class="pvshadow">
+        <div
+          class="pvcard"
+          style={`box-shadow:${item.x}px ${item.y}px ${item.blur}px ${item.spread}px ${item.color}`}
+        >
+        </div>
+      </div>
+    )}
+
+    {item.type === "comp" && (
+      <iframe
+        class="pvframe"
+        loading="lazy"
+        sandbox="allow-scripts"
+        title={`${item.name} preview`}
+        srcdoc={frameDoc(item)}></iframe>
+    )}
+  </div>
+
+  <div class="cb">
+    <div>
+      <div class="cn">{item.name}</div>
+      <div class="cc">{catLabel}</div>
+    </div>
+  </div>
+</article>

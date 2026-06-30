@@ -1,0 +1,82 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  /** Path only, e.g. "/" or "/gradients/". Combined with site for canonical + OG. */
+  path?: string;
+  /** Optional JSON-LD object injected into <head>. */
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title = "CopyKit — copy-ready gradients, palettes, shadows & UI components",
+  description = "A living library of gradients, palettes, shadows, buttons, loaders, text effects, cards, backgrounds & more. Play live, copy the code in one click. Free, no signup, 100% in your browser.",
+  path = "/",
+  jsonLd,
+} = Astro.props;
+
+// Build an absolute canonical URL from the configured site.
+const site = Astro.site ?? new URL("https://copykit.dev");
+const canonical = new URL(path, site).href;
+
+const defaultJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "CopyKit",
+  url: site.href,
+  applicationCategory: "DeveloperApplication",
+  operatingSystem: "Any",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+  description,
+  author: { "@type": "Person", name: "Adham" },
+};
+const ld = jsonLd ?? defaultJsonLd;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta
+      name="keywords"
+      content="css gradients, color palettes, box shadow generator, css buttons, loaders, ui components, copy paste css, frontend tools, css generator, design resources"
+    />
+    <meta name="author" content="Adham" />
+    <link rel="canonical" href={canonical} />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="CopyKit" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="theme-color" content="#09070f" />
+
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2309070f'/%3E%3Ctext%20x='16'%20y='23'%20font-family='monospace'%20font-size='18'%20font-weight='700'%20fill='%23a855f7'%20text-anchor='middle'%3EC%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} is:inline />
+  </head>
+  <body>
+    <div class="aura" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
+    <div class="grain" aria-hidden="true"></div>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  @import "../styles/global.css";
+</style>

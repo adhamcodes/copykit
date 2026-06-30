@@ -1,0 +1,16 @@
+{
+  "name": "copykit",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "CopyKit — a living, copy-ready library of gradients, palettes, shadows and UI components for developers and designers. Free, no signup, 100% in your browser.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.2.0"
+  }
+}
