@@ -63,7 +63,7 @@ const jsonLd = {
 <Layout title={title} description={description} path={path} jsonLd={jsonLd}>
   <Header />
 
-  <main class="wrap item-page" data-item={item.slug}>
+  <main class="wrap item-page" id="main" data-item={item.slug}>
     <nav class="breadcrumb" aria-label="Breadcrumb">
       <a href="/">Home</a> <span>/</span>
       <a href={catUrl(item.cat)}>{catLabel}</a> <span>/</span>
