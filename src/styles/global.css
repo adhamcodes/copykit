@@ -2004,3 +2004,20 @@ footer {
   margin: 10px auto 20px;
   line-height: 1.6;
 }
+
+
+/* ============================================================
+   SECTION 5 — Export as image
+   ============================================================ */
+.export-img {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.export-label {
+  font-family: "IBM Plex Mono";
+  font-size: 12px;
+  color: var(--muted);
+  margin-right: auto;
+}

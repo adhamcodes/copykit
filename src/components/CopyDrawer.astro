@@ -48,6 +48,11 @@
     <button class="copybtn" id="copybtn">Copy code</button>
     <button class="favbtn" id="saveKit" type="button">♥ Save to My Kit</button>
     <button class="favbtn codepen-btn" id="openCodepen" type="button">Open in CodePen ↗</button>
+    <div class="export-img" id="exportImg">
+      <span class="export-label">Export image</span>
+      <button class="minibtn" id="exPng" type="button">PNG</button>
+      <button class="minibtn" id="exSvg" type="button">SVG</button>
+    </div>
   </div>
 </aside>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -59,6 +64,7 @@
   import { itemUrl, itemSlugOf } from "../lib/catalog";
   import { copyText, confetti, trackRecent } from "../lib/ui";
   import { fillPreview } from "../lib/preview";
+  import { exportable, downloadPng, downloadSvg } from "../lib/image";
   import {
     parseColor, formatColor, toColorInput, applyColors, uniqueColors, randomColor,
     type RGBA, type ColorFormat,
@@ -260,6 +266,7 @@
     );
     buildStudio(it);
     buildTabs(it);
+    ($("exportImg") as HTMLElement).style.display = exportable(it) ? "flex" : "none";
     refresh();
     scrim.classList.add("open");
     drawer.classList.add("open");
@@ -373,6 +380,22 @@
     document.body.appendChild(form);
     form.submit();
     form.remove();
+  });
+
+  // ---- export image (gradients / palettes / shadows) ----
+  $("exPng").addEventListener("click", async () => {
+    if (!current) return;
+    try {
+      await downloadPng(editedItem(), current.slug);
+      showToastSafe("Downloaded PNG ✓");
+    } catch {
+      showToastSafe("PNG not supported in this browser — try SVG");
+    }
+  });
+  $("exSvg").addEventListener("click", () => {
+    if (!current) return;
+    downloadSvg(editedItem(), current.slug);
+    showToastSafe("Downloaded SVG ✓");
   });
 
   // ---- preview bg toggle ----
