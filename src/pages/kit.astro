@@ -1,0 +1,161 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CopyDrawer from "../components/CopyDrawer.astro";
+
+const title = "My Kit — your saved pieces | CopyKit";
+const description =
+  "Your personal collection of saved CopyKit pieces. Preview, manage, export as one CSS file or JSON, and share — all in your browser.";
+---
+
+<Layout title={title} description={description} path="/kit/">
+  <Header />
+
+  <main class="wrap">
+    <section class="kit-head">
+      <h1>My Kit</h1>
+      <p>Everything you've saved — including your edited versions. Stored in your browser, no account needed.</p>
+      <div class="kit-actions" id="kitActions">
+        <button class="minibtn" id="kCss" type="button">Export .css</button>
+        <button class="minibtn" id="kJson" type="button">Export .json</button>
+        <button class="minibtn" id="kShare" type="button">🔗 Copy share link</button>
+        <button class="minibtn ghost" id="kClear" type="button">Clear all</button>
+      </div>
+    </section>
+
+    <div class="grid" id="kitGrid"></div>
+    <div class="kit-empty" id="kitEmpty" hidden>
+      <p>Your kit is empty.</p>
+      <span>Browse the library and tap the ♥ on any piece — or open the studio, tweak a piece, and save your version.</span>
+      <a class="more-link" href="/">Browse CopyKit →</a>
+    </div>
+  </main>
+
+  <Footer />
+  <CopyDrawer />
+</Layout>
+
+<script>
+  import { items } from "../data/items";
+  import type { Item } from "../data/items";
+  import { itemUrl } from "../lib/catalog";
+  import { primaryCode } from "../lib/codegen";
+  import { kitCss, kitJson } from "../lib/exporters";
+  import { copyText, showToast } from "../lib/ui";
+  import { fillPreview } from "../lib/preview";
+
+  const bySlug = new Map(items.map((i) => [i.slug, i]));
+
+  function load(): { kit: string[]; customs: any[] } {
+    let kit: string[] = [], customs: any[] = [];
+    try { kit = JSON.parse(localStorage.getItem("ck_kit") || "[]"); } catch {}
+    try { customs = JSON.parse(localStorage.getItem("ck_customs") || "[]"); } catch {}
+    return { kit, customs };
+  }
+  function saveKit(kit: string[]) {
+    localStorage.setItem("ck_kit", JSON.stringify(kit));
+    window.dispatchEvent(new CustomEvent("copykit:kit-changed"));
+  }
+  function download(filename: string, text: string, mime: string) {
+    const blob = new Blob([text], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // shared link: /kit?k=slug.slug.slug  -> merge into the user's kit
+  const params = new URLSearchParams(location.search);
+  const shared = params.get("k");
+  if (shared) {
+    const { kit } = load();
+    const incoming = shared.split(".").filter((s) => bySlug.has(s) && !kit.includes(s));
+    if (incoming.length) {
+      saveKit([...kit, ...incoming]);
+      showToast(`Added ${incoming.length} shared piece${incoming.length === 1 ? "" : "s"} ✓`);
+    }
+    history.replaceState(null, "", "/kit/");
+  }
+
+  const grid = document.getElementById("kitGrid")!;
+  const empty = document.getElementById("kitEmpty")!;
+
+  function resolve(slug: string): Item | undefined {
+    const { customs } = load();
+    return bySlug.get(slug) || (customs.find((c) => c.slug === slug) as Item | undefined);
+  }
+  function listItems(): { slug: string; item: Item; custom: boolean }[] {
+    const { kit } = load();
+    return kit
+      .map((slug) => { const item = resolve(slug); return item ? { slug, item, custom: !bySlug.has(slug) } : null; })
+      .filter(Boolean) as { slug: string; item: Item; custom: boolean }[];
+  }
+
+  function render() {
+    const list = listItems();
+    grid.innerHTML = "";
+    const actions = document.getElementById("kitActions")!;
+    if (!list.length) {
+      empty.hidden = false;
+      actions.style.display = "none";
+      return;
+    }
+    empty.hidden = true;
+    actions.style.display = "flex";
+    list.forEach(({ slug, item, custom }) => {
+      const card = document.createElement(custom ? "div" : "div");
+      card.className = "card kit-card";
+      card.dataset.slug = slug;
+      const remove = document.createElement("button");
+      remove.className = "kremove";
+      remove.setAttribute("aria-label", "Remove from kit");
+      remove.textContent = "✕";
+      remove.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const { kit } = load();
+        saveKit(kit.filter((s) => s !== slug));
+        render();
+      });
+      const pv = document.createElement("div");
+      pv.className = "pv";
+      fillPreview(pv, item, "dark");
+      const cb = document.createElement("div");
+      cb.className = "cb";
+      cb.innerHTML = `<div><div class="cn">${item.name}</div><div class="cc">${custom ? "edited" : item.cat}</div></div><span class="copen">${custom ? "copy" : "</> code"}</span>`;
+      card.append(remove, pv, cb);
+      // custom items can't open the studio (not in the catalog) -> click copies their code
+      if (custom) {
+        card.addEventListener("click", () => copyText(primaryCode(item), "Copied code ✓"));
+      }
+      grid.appendChild(card);
+    });
+  }
+
+  document.getElementById("kCss")?.addEventListener("click", () => {
+    const list = listItems().map((x) => x.item);
+    if (!list.length) return;
+    download("copykit.css", kitCss(list), "text/css");
+    showToast("Downloaded copykit.css ✓");
+  });
+  document.getElementById("kJson")?.addEventListener("click", () => {
+    const list = listItems().map((x) => x.item);
+    if (!list.length) return;
+    download("copykit.json", kitJson(list), "application/json");
+    showToast("Downloaded copykit.json ✓");
+  });
+  document.getElementById("kShare")?.addEventListener("click", () => {
+    const slugs = listItems().filter((x) => !x.custom).map((x) => x.slug);
+    if (!slugs.length) return showToast("Nothing shareable yet (edited pieces can't be shared by link)");
+    const url = `${location.origin}/kit?k=${slugs.join(".")}`;
+    copyText(url, "Share link copied ✓");
+  });
+  document.getElementById("kClear")?.addEventListener("click", () => {
+    saveKit([]);
+    render();
+  });
+
+  window.addEventListener("copykit:kit-changed", render);
+  render();
+</script>

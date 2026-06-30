@@ -1938,3 +1938,69 @@ footer {
   border-color: var(--green);
   color: var(--green);
 }
+
+
+/* ============================================================
+   SECTION 4 — My Kit page (/kit)
+   ============================================================ */
+
+.kit-head {
+  padding: 26px 0 18px;
+}
+.kit-head h1 {
+  font-size: clamp(30px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+.kit-head p {
+  color: var(--muted);
+  font-size: 16px;
+  max-width: 620px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+.kit-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+.kit-card {
+  position: relative;
+}
+.kremove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(9, 7, 15, 0.6);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  cursor: pointer;
+  z-index: 3;
+  font-size: 12px;
+  transition: 0.18s;
+}
+.kremove:hover {
+  border-color: #ff5a7a;
+  color: #ff5a7a;
+}
+.kit-empty {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--muted);
+}
+.kit-empty p {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+.kit-empty span {
+  display: block;
+  max-width: 420px;
+  margin: 10px auto 20px;
+  line-height: 1.6;
+}
