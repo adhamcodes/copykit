@@ -8,17 +8,14 @@ const GITHUB_URL = "https://github.com/adhamcodes/copykit";
       <span class="d"></span>
       <span>Copy<b>Kit</b></span>
     </a>
-    <div class="search">
+    <button class="search" id="searchTrigger" type="button" aria-label="Search (⌘K)">
       <span class="mono" aria-hidden="true">⌕</span>
-      <input
-        type="search"
-        placeholder="Search gradients, buttons, shadows…"
-        aria-label="Search (coming soon)"
-        disabled
-      />
-      <span class="k">/</span>
-    </div>
+      <span class="search-ph">Search gradients, buttons, shadows…</span>
+      <span class="k">⌘K</span>
+    </button>
     <div class="nav-actions">
+      <button class="hbtn" id="themeBtn" type="button" title="Paint the site a palette" aria-label="Theme the site">🎨</button>
+      <button class="hbtn kit-btn" id="kitBtn" type="button" aria-label="My Kit">♥ <span id="kitCount">0</span></button>
       <a class="ghlink" href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
       <span class="by">by Adham</span>
     </div>

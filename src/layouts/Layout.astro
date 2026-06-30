@@ -31,6 +31,7 @@ const defaultJsonLd = {
   author: { "@type": "Person", name: "Adham" },
 };
 const ld = jsonLd ?? defaultJsonLd;
+import GlobalUI from "../components/GlobalUI.astro";
 ---
 
 <!doctype html>
@@ -69,11 +70,22 @@ const ld = jsonLd ?? defaultJsonLd;
     />
 
     <script type="application/ld+json" set:html={JSON.stringify(ld)} is:inline />
+    <script is:inline>
+      // Apply a saved theme before first paint (no flash).
+      try {
+        var t = JSON.parse(localStorage.getItem("ck_theme") || "null");
+        if (t && t[0] && t[1]) {
+          document.documentElement.style.setProperty("--green", t[0]);
+          document.documentElement.style.setProperty("--cyan", t[1]);
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div class="aura" aria-hidden="true"><i class="a"></i><i class="b"></i></div>
     <div class="grain" aria-hidden="true"></div>
     <slot />
+    <GlobalUI />
   </body>
 </html>
 
