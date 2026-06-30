@@ -1,31 +1,13 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Card from "../components/Card.astro";
+import CopyDrawer from "../components/CopyDrawer.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
 import { items } from "../data/items";
+import { activeCats, catUrl, itemsByCat } from "../lib/catalog";
 
-const GITHUB_URL = "https://github.com/adhamcodes/copykit";
-
-// Display labels + the order categories should appear in.
-const CATS: { key: string; label: string }[] = [
-  { key: "gradients", label: "Gradients" },
-  { key: "palettes", label: "Palettes" },
-  { key: "shadows", label: "Shadows" },
-  { key: "buttons", label: "Buttons" },
-  { key: "cards", label: "Cards" },
-  { key: "loaders", label: "Loaders" },
-  { key: "backgrounds", label: "Backgrounds" },
-  { key: "textfx", label: "Text Effects" },
-  { key: "toggles", label: "Toggles" },
-  { key: "inputs", label: "Inputs" },
-  { key: "badges", label: "Badges" },
-  { key: "cursors", label: "Cursor FX" },
-];
-
-// Group items by category, keeping only categories that actually have items.
-const grouped = CATS.map((c) => ({
-  ...c,
-  items: items.filter((it) => it.cat === c.key),
-})).filter((g) => g.items.length > 0);
+const grouped = activeCats().map((c) => ({ ...c, items: itemsByCat(c.key) }));
 
 const total = items.length;
 const gradientCount = items.filter((i) => i.type === "gradient").length;
@@ -34,30 +16,7 @@ const componentCount = items.filter((i) => i.type === "comp").length;
 ---
 
 <Layout>
-  <header>
-    <nav class="wrap">
-      <a class="logo" href="/" aria-label="CopyKit home">
-        <span class="d"></span>
-        <span>Copy<b>Kit</b></span>
-      </a>
-      <div class="search">
-        <span class="mono" aria-hidden="true">⌕</span>
-        <input
-          type="search"
-          placeholder="Search gradients, buttons, shadows…"
-          aria-label="Search (coming soon)"
-          disabled
-        />
-        <span class="k">/</span>
-      </div>
-      <div class="nav-actions">
-        <a class="ghlink" href={GITHUB_URL} target="_blank" rel="noopener">
-          GitHub
-        </a>
-        <span class="by">by Adham</span>
-      </div>
-    </nav>
-  </header>
+  <Header />
 
   <main class="wrap">
     <section class="hero">
@@ -82,7 +41,7 @@ const componentCount = items.filter((i) => i.type === "comp").length;
 
     <nav class="catbar" aria-label="Categories">
       {grouped.map((g) => (
-        <a class="catlink" href={`#${g.key}`}>
+        <a class="catlink" href={catUrl(g.key)}>
           {g.label}<span class="cn">{g.items.length}</span>
         </a>
       ))}
@@ -91,262 +50,24 @@ const componentCount = items.filter((i) => i.type === "comp").length;
     {grouped.map((g) => (
       <section id={g.key}>
         <div class="section-head">
-          <h2>{g.label}</h2>
-          <span class="meta">{g.items.length} pieces</span>
+          <h2><a href={catUrl(g.key)}>{g.label}</a></h2>
+          <span class="meta"><a href={catUrl(g.key)}>{g.items.length} pieces →</a></span>
         </div>
         <div class="grid">
-          {g.items.map((it) => (
+          {g.items.slice(0, 12).map((it) => (
             <Card item={it} />
           ))}
         </div>
+        {g.items.length > 12 && (
+          <div class="more-row">
+            <a class="more-link" href={catUrl(g.key)}>See all {g.items.length} {g.label.toLowerCase()} →</a>
+          </div>
+        )}
       </section>
     ))}
   </main>
 
-  <footer>
-    <div class="wrap">
-      <div class="fcols">
-        <div class="fbrand">
-          <div class="logo"><span class="d"></span><span>Copy<b>Kit</b></span></div>
-          <p>
-            A living, copy-ready library of gradients, palettes, shadows and UI
-            components. Free, no signup, 100% in your browser.
-          </p>
-          <div class="fsocial">
-            <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>
-          </div>
-        </div>
-        <div class="fcol">
-          <h4>Browse</h4>
-          {grouped.slice(0, 6).map((g) => (
-            <a href={`#${g.key}`}>{g.label}</a>
-          ))}
-        </div>
-        <div class="fcol">
-          <h4>More</h4>
-          {grouped.slice(6).map((g) => (
-            <a href={`#${g.key}`}>{g.label}</a>
-          ))}
-        </div>
-        <div class="fcol">
-          <h4>Project</h4>
-          <a href={GITHUB_URL} target="_blank" rel="noopener">Source code</a>
-        </div>
-      </div>
-      <div class="fbot">
-        Made with care by <b>Adham</b> · <a href={GITHUB_URL} target="_blank" rel="noopener">CopyKit on GitHub</a>
-      </div>
-    </div>
-  </footer>
-  <!-- ===================== Copy Engine: drawer ===================== -->
-  <div class="scrim" id="scrim"></div>
-  <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Code viewer">
-    <div class="dh">
-      <div>
-        <h3 id="dname">—</h3>
-        <span class="dcat" id="dcat">—</span>
-      </div>
-      <div class="hd">
-        <button id="dclose" aria-label="Close">✕</button>
-      </div>
-    </div>
-    <div class="dbody">
-      <div class="dpv-wrap">
-        <div class="pvtoggle" role="group" aria-label="Preview background">
-          <button data-bg="dark" class="on">Dark</button>
-          <button data-bg="light">Light</button>
-        </div>
-        <div id="dpv"></div>
-      </div>
-      <div class="ftabs" id="ftabs" role="tablist"></div>
-      <div class="codebox"><pre id="codeblock"></pre></div>
-      <button class="copybtn" id="copybtn">Copy code</button>
-    </div>
-  </aside>
-  <div id="toast" role="status" aria-live="polite"></div>
+  <Footer />
+
+  <CopyDrawer />
 </Layout>
-
-<script>
-  import { items } from "../data/items";
-  import type { Item } from "../data/items";
-  import { formatsFor, highlight, shadowCss, frameDoc, type Format } from "../lib/codegen";
-
-  const bySlug = new Map(items.map((i) => [i.slug, i]));
-
-  const $ = (id: string) => document.getElementById(id)!;
-  const scrim = $("scrim");
-  const drawer = $("drawer");
-  const dpv = $("dpv");
-  const ftabs = $("ftabs");
-  const codeblock = $("codeblock");
-  const copybtn = $("copybtn") as HTMLButtonElement;
-  const toastEl = $("toast");
-
-  let current: Item | null = null;
-  let formats: Format[] = [];
-  let activeFmt = 0;
-  let previewBg: "dark" | "light" = "dark";
-  let toastTimer: number | undefined;
-
-  function showToast(msg: string) {
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toastEl.classList.remove("show"), 1800);
-  }
-
-  async function copyText(text: string, msg: string) {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = text;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      ta.remove();
-    }
-    showToast(msg);
-  }
-
-  function fillPreview(host: HTMLElement, it: Item, bgKey: "dark" | "light") {
-    const bg = bgKey === "light" ? "#f4f5fb" : "#141021";
-    host.style.background = it.type === "comp" && it.bg ? it.bg : bg;
-    host.innerHTML = "";
-    if (it.type === "gradient") {
-      const d = document.createElement("div");
-      d.style.background = it.grad;
-      host.appendChild(d);
-    } else if (it.type === "palette") {
-      const w = document.createElement("div");
-      w.className = "pvpal";
-      it.cols.forEach((c) => {
-        const s = document.createElement("div");
-        s.style.background = c;
-        s.dataset.hex = c;
-        s.title = `Copy ${c}`;
-        s.addEventListener("click", () => copyText(c, `Copied ${c}`));
-        w.appendChild(s);
-      });
-      host.appendChild(w);
-    } else if (it.type === "shadow") {
-      const w = document.createElement("div");
-      w.className = "pvshadow";
-      const c = document.createElement("div");
-      c.className = "pvcard";
-      c.style.boxShadow = shadowCss(it);
-      w.appendChild(c);
-      host.appendChild(w);
-    } else {
-      const f = document.createElement("iframe");
-      f.setAttribute("sandbox", "allow-scripts");
-      f.setAttribute("title", `${it.name} preview`);
-      f.srcdoc = frameDoc(it, bg);
-      host.appendChild(f);
-    }
-  }
-
-  function showCode(i: number) {
-    activeFmt = i;
-    const [, code] = formats[i];
-    codeblock.innerHTML = highlight(code);
-    [...ftabs.children].forEach((b, idx) =>
-      b.classList.toggle("on", idx === i)
-    );
-    copybtn.textContent = "Copy code";
-    copybtn.classList.remove("ok");
-  }
-
-  function buildTabs(it: Item) {
-    formats = formatsFor(it);
-    ftabs.innerHTML = "";
-    formats.forEach(([label], i) => {
-      const b = document.createElement("button");
-      b.className = "ftab" + (i === 0 ? " on" : "");
-      b.textContent = label;
-      b.setAttribute("role", "tab");
-      b.addEventListener("click", () => showCode(i));
-      ftabs.appendChild(b);
-    });
-    showCode(0);
-  }
-
-  function openDrawer(it: Item) {
-    current = it;
-    previewBg = "dark";
-    $("dname").textContent = it.name;
-    $("dcat").textContent = it.cat;
-    document.title = `${it.name} · ${it.cat} — CopyKit`;
-    [...document.querySelectorAll<HTMLElement>(".pvtoggle button")].forEach((b) =>
-      b.classList.toggle("on", b.dataset.bg === "dark")
-    );
-    fillPreview(dpv, it, "dark");
-    buildTabs(it);
-    scrim.classList.add("open");
-    drawer.classList.add("open");
-    drawer.setAttribute("aria-hidden", "false");
-    history.replaceState(null, "", "#" + it.slug);
-    copybtn.focus();
-  }
-
-  function closeDrawer() {
-    scrim.classList.remove("open");
-    drawer.classList.remove("open");
-    drawer.setAttribute("aria-hidden", "true");
-    current = null;
-    document.title = "CopyKit — copy-ready gradients, palettes, shadows & UI components";
-    history.replaceState(null, "", location.pathname + location.search);
-  }
-
-  // ---- wiring ----
-  copybtn.addEventListener("click", () => {
-    if (!current) return;
-    const [label, code] = formats[activeFmt];
-    copyText(code, `Copied ${label} ✓`);
-    copybtn.textContent = "Copied ✓";
-    copybtn.classList.add("ok");
-  });
-
-  document.querySelectorAll<HTMLElement>(".pvtoggle button").forEach((b) =>
-    b.addEventListener("click", () => {
-      if (!current) return;
-      previewBg = (b.dataset.bg as "dark" | "light") || "dark";
-      document.querySelectorAll(".pvtoggle button").forEach((x) => x.classList.remove("on"));
-      b.classList.add("on");
-      fillPreview(dpv, current, previewBg);
-    })
-  );
-
-  $("dclose").addEventListener("click", closeDrawer);
-  scrim.addEventListener("click", closeDrawer);
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && current) closeDrawer();
-  });
-
-  // open from a card click
-  document.addEventListener("click", (e) => {
-    const card = (e.target as HTMLElement).closest<HTMLElement>(".card");
-    if (!card) return;
-    const slug = card.dataset.slug;
-    const it = slug ? bySlug.get(slug) : undefined;
-    if (it) openDrawer(it);
-  });
-
-  // keyboard activate a focused card
-  document.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    const el = document.activeElement as HTMLElement | null;
-    if (el && el.classList.contains("card")) {
-      e.preventDefault();
-      const slug = el.dataset.slug;
-      const it = slug ? bySlug.get(slug) : undefined;
-      if (it) openDrawer(it);
-    }
-  });
-
-  // deep link: open the piece named in the URL hash on load
-  const initial = location.hash.slice(1);
-  if (initial && bySlug.has(initial)) openDrawer(bySlug.get(initial)!);
-</script>
