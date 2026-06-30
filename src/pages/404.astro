@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import CopyDrawer from "../components/CopyDrawer.astro";
+---
+
+<Layout title="Page not found (404) — CopyKit" description="That page doesn't exist on CopyKit." path="/404/">
+  <Header />
+  <main class="wrap" id="main">
+    <section class="notfound">
+      <div class="nf-code">404</div>
+      <h1>This piece doesn't exist… yet.</h1>
+      <p>The page you're after isn't here. Try a search, or head back to the library.</p>
+      <div class="nf-actions">
+        <button class="herosearch js-search" data-search type="button">
+          <span class="mono" aria-hidden="true">⌕</span>
+          <span>Search CopyKit…</span>
+          <span class="k">⌘K</span>
+        </button>
+        <a class="more-link" href="/">← Back to CopyKit</a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <CopyDrawer />
+</Layout>
